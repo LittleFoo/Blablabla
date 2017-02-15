@@ -8,15 +8,16 @@ public class Test : MonoBehaviour {
 	public string contentStr;
 	public FontAnalyse analyse;
 	public BoxCollider2D col;
-	private List<SpriteRenderer> character;
+	private List<Transform> character = new List<Transform>();
 	private bool hasEntered = false;
 	private int crossIdx;
+	private char[] chars ;
 	void Start () {
 		GameObject obj;
 		SpriteRenderer spr;
 		FontData d = new FontData();
 		int x = 0;
-		char[] chars = contentStr.ToCharArray();
+		chars = contentStr.ToCharArray();
 		for(int i = 0; i < chars.Length; i++)
 		{
 			obj = new GameObject();
@@ -25,7 +26,7 @@ public class Test : MonoBehaviour {
 			spr.sortingOrder = 1;
 			obj.transform.SetParent(transform, false);
 			obj.name = chars[i].ToString();
-
+			character.Add(obj.transform);
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
@@ -40,12 +41,48 @@ public class Test : MonoBehaviour {
 
 	public void check(PlayerController t)
 	{
-		
+		Transform tf = t.transform;
+		if(tf.position.x > character[crossIdx].transform.position.x)
+		{
+			if(crossIdx == character.Count-1 || tf.position.x < character[crossIdx+1].transform.position.x)
+				return;
+
+			crossIdx ++;
+		}
+		else
+			crossIdx--;
+
+		if(crossIdx < 0 || chars[crossIdx] == " "[0])
+		{
+			col.enabled = false;
+			t.onDie();
+		}
 	}
 
-	public void enter()
+	public void enter(PlayerController t)
 	{
+		if(hasEntered)
+			return;
+		
 		hasEntered = true;
+		crossIdx = -1;
+		int lastIdx = character.Count-1;
+		Transform tf = t.transform;
+		for(int i = 0; i < lastIdx; i++)
+		{
+			if(tf.position.x > character[i].transform.position.x && tf.position.x < character[i+1].transform.position.x)
+			{
+				crossIdx = i;
+				break;
+			}
+
+		}
+
+		if(crossIdx == -1)
+			crossIdx = lastIdx;
+
+
+
 	}
 
 	public void leave()

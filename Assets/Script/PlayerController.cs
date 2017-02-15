@@ -25,6 +25,9 @@ public class PlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void Update()
 	{
+		if(die)
+			return;
+		
 		x = transform.position.x;
 		y = transform.position.y;
 		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && getBottom)
@@ -80,9 +83,12 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
+	private bool die = false;
 	public void onDie()
 	{
-		GetComponent<SpriteRenderer>().sprite = null;
+//		GetComponent<SpriteRenderer>().sprite = null;
+		transform.localScale = Vector3.one*20;
+		die = true;
 	}
 
 	public void onGetBottom()
@@ -97,7 +103,7 @@ public class PlayerController : MonoBehaviour {
 			return;
 		_enteredCol = other;
 		_enteredTrigger = other.GetComponent<Test>();
-		_enteredTrigger.enter();
+		_enteredTrigger.enter(this);
 	}
 
 
