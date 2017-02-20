@@ -5,17 +5,22 @@ public class PlayerController : MonoBehaviour {
 	public float initJumpSpeed;
 	public float initMoveSpeed;
 	public float g;
+	public float height;
+	public float halfWidth;
 	private bool getBottom = false;
 	private Test _enteredTrigger;
 	private Collider2D _enteredCol;
 	private float initY;
 	private float y;
 	private float x;
-	private float speedx;
-	private float speedy;
+	private float _speedx;
+	public float speedx{get{return _speedx;}}
+	private float _speedy;
+	public float speedy{get{return _speedy;}}
 	private float lastSpeedY;
 	private bool allowToPressSpace = true;
-	private int arrowStatus = 0;
+	private Config.Direction arrowStatus = Config.Direction.None;
+	private bool isOnDrop;
 	// Use this for initialization
 	void Start () {
 		initY = transform.position.y;
@@ -33,54 +38,71 @@ public class PlayerController : MonoBehaviour {
 		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && getBottom)
 		{
 			allowToPressSpace = false;
-			speedy = initJumpSpeed;
+			_speedy = initJumpSpeed;
 			getBottom = false;
 		}
 
 		if(Input.GetKeyUp(KeyCode.Space))
 			allowToPressSpace = true;
 
-		x += speedx*Time.deltaTime;
-
 			if(Input.GetKeyDown(KeyCode.RightArrow))
 			{
-				speedx = initMoveSpeed;
-				arrowStatus = 1;
+					arrowStatus = Config.Direction.Right;
 			}
 			else if(Input.GetKeyDown(KeyCode.LeftArrow))
 			{
-				speedx = -initMoveSpeed;
-				arrowStatus = -1;
+					arrowStatus =  Config.Direction.Left;
 			}
-			
 
-		if(Input.GetKeyUp(KeyCode.RightArrow) && arrowStatus == 1)
-		{
-			speedx = 0;
-			arrowStatus = 0;
-		}
+			if(Input.GetKeyUp(KeyCode.RightArrow) && arrowStatus ==  Config.Direction.Right)
+			{
+				arrowStatus =  Config.Direction.None;
+			}
 
-		if(Input.GetKeyUp(KeyCode.LeftArrow) && arrowStatus == -1)
+			if(Input.GetKeyUp(KeyCode.LeftArrow) && arrowStatus ==  Config.Direction.Left)
+			{
+				arrowStatus =  Config.Direction.None;
+			}
+
+		if(getBottom || arrowStatus == Config.Direction.None)
 		{
-			speedx = 0;
-			arrowStatus = 0;
+			switch(arrowStatus)
+			{
+			case Config.Direction.Left:
+				_speedx = -initMoveSpeed;
+				break;
+			case Config.Direction.Right:
+				_speedx = initMoveSpeed;
+				break;
+
+				default:
+				_speedx = 0;
+				break;
+			}
 		}
+		float deltaX = _speedx*Time.deltaTime;
+
+		if(_enteredTrigger != null && !_enteredTrigger.allowToMove(this, deltaX))
+		{
+			deltaX = 0;
+		}
+		x += deltaX;
 
 		if(!getBottom)
 		{
-			lastSpeedY = speedy;
-			speedy -= g*Time.deltaTime;
-			y = transform.position.y + (speedy+lastSpeedY)*0.5f*Time.deltaTime;
+			lastSpeedY = _speedy;
+			_speedy -= g*Time.deltaTime;
+			y = transform.position.y + (_speedy+lastSpeedY)*0.5f*Time.deltaTime;
 		}
 		transform.position = new Vector3(x, y, 0);
 		if(_enteredTrigger != null)
 			_enteredTrigger.check(this);
 		
-		if(speedy < 0 && _enteredTrigger != null)
-		{
-			getBottom = true;
-			speedy = 0;
-		}
+//		if(_enteredTrigger != null)
+//		{
+//			getBottom = true;
+//			speedy = 0;
+//		}
 	}
 
 	private bool die = false;
@@ -91,33 +113,81 @@ public class PlayerController : MonoBehaviour {
 		die = true;
 	}
 
-	public void onGetBottom()
+	public void onDrop(Collider2D other)
 	{
-		speedy = 0;
-		getBottom = true;
+//		OnTriggerExit2D(other);
+		allowToPressSpace = false;
+		getBottom = false;
+		isOnDrop = true;
+		//		GetComponent<SpriteRenderer>().sprite = null;
+//		transform.localScale = Vector3.one*20;
+//		die = true;
 	}
+
+	public void onTouch(Collider2D other, Config.Direction direction)
+	{
+		_enteredCol = other;
+		switch(direction)
+		{
+			case Config.Direction.Bottom:
+				getBottom = true;
+				_speedy = 0;
+				isOnDrop = false;
+				allowToPressSpace = true;
+				_enteredCol = other;
+				_enteredTrigger = other.GetComponent<Test>();
+				_enteredTrigger.enter(this);
+				break;
+
+			case Config.Direction.Top:
+				_speedy = -_speedy;
+				break;
+
+			case Config.Direction.Left:
+				break;
+
+			case Config.Direction.Right:
+				break;
+		}
+	}
+
 
 	public void OnTriggerEnter2D(Collider2D other)
 	{
 		if(other.GetComponent<Test>() == null)
 			return;
-		_enteredCol = other;
 		_enteredTrigger = other.GetComponent<Test>();
 		_enteredTrigger.enter(this);
+
+//		if(speedy <= 0)
+//		{
+//			getBottom = true;
+//			speedy = 0;
+//			_enteredCol = other;
+//			_enteredTrigger = other.GetComponent<Test>();
+//			_enteredTrigger.enter(this);
+//		}
+//		else
+//		{
+//			if(other != _enteredCol)
+//			{
+//				speedy = -speedy;
+//			}
+//		}
 	}
 
 
 
 	void OnTriggerExit2D(Collider2D other) {
-		
-		if(_enteredCol == other)
-		{
-			_enteredCol = null;
-			_enteredTrigger = null;
-		}
 
 		if(other.GetComponent<Test>() == null)
 			return;
+		
+//		if(_enteredCol == other)
+//		{
+//			_enteredCol = null;
+//			_enteredTrigger = null;
+//		}
 
 		other.GetComponent<Test>().leave();
 	}

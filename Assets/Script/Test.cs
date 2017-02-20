@@ -8,7 +8,7 @@ public class Test : MonoBehaviour {
 	public string contentStr;
 	public FontAnalyse analyse;
 	public BoxCollider2D col;
-	private List<Transform> character = new List<Transform>();
+	private List<CharacterCell> character = new List<CharacterCell>();
 	private bool hasEntered = false;
 	private int crossIdx;
 	private char[] chars ;
@@ -16,23 +16,30 @@ public class Test : MonoBehaviour {
 		GameObject obj;
 		SpriteRenderer spr;
 		FontData d = new FontData();
+		CharacterCell cell;
 		int x = 0;
 		chars = contentStr.ToCharArray();
 		for(int i = 0; i < chars.Length; i++)
 		{
 			obj = new GameObject();
+			cell = new CharacterCell();
 			spr = obj.AddComponent<SpriteRenderer>();
 			spr.color = Color.blue;
 			spr.sortingOrder = 1;
 			obj.transform.SetParent(transform, false);
 			obj.name = chars[i].ToString();
-			character.Add(obj.transform);
+
+
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
 				x += d.xadvance;
 			}
 			spr.sprite = d.spr;
+
+			cell.tf = obj.transform;
+			cell.fontData = d;
+			character.Add(cell);
 		}
 
 		col.size = new Vector2(x + d.width, analyse.lineHeight);
@@ -41,22 +48,105 @@ public class Test : MonoBehaviour {
 
 	public void check(PlayerController t)
 	{
+		if(crossIdx < 0 || crossIdx >= character.Count)
+			return;
 		Transform tf = t.transform;
-		if(tf.position.x > character[crossIdx].transform.position.x)
+		if(tf.position.x > character[crossIdx].tf.position.x + character[crossIdx].fontData.width)
 		{
-			if(crossIdx == character.Count-1 || tf.position.x < character[crossIdx+1].transform.position.x)
-				return;
-
-			crossIdx ++;
+			if(crossIdx != character.Count-1 && tf.position.x >= character[crossIdx+1].tf.position.x)
+			{
+				character[crossIdx].enter = false;
+				crossIdx ++;
+			}
 		}
-		else
+		else if(tf.position.x < character[crossIdx].tf.position.x)
+		{
+			character[crossIdx].enter = false;
 			crossIdx--;
+		}
+//		if(tf.position.y < character[crossIdx].position.y)
+//		{
+//			t.onTouch(col, false);
+//		}
+//		else
+//		{
+//			t.onTouch(col, true);
+//		}
 
-		if(crossIdx < 0 || chars[crossIdx] == " "[0])
+		if(crossIdx < 0 || (chars[crossIdx] == " "[0] && tf.position.y < character[crossIdx].tf.position.y))
 		{
 			col.enabled = false;
-			t.onDie();
+			t.onDrop(col);
+			return;
 		}
+		else if(t.speedy < 0)
+		{
+			if(tf.position.y <=  character[crossIdx].tf.position.y)
+			{
+				if(!character[crossIdx].enter)
+				{
+					character[crossIdx].enter = true;
+					tf.position =  new Vector2(tf.position.x, character[crossIdx].tf.position.y);
+					t.onTouch(col, Config.Direction.Bottom);
+				}
+			}
+			else
+				character[crossIdx].enter = false;
+		}
+		else if(t.speedy > 0)
+		{
+			if(tf.position.y + t.height >=  character[crossIdx].tf.position.y - character[crossIdx].fontData.height && tf.position.y + t.height < character[crossIdx].tf.position.y)
+			{
+				if(!character[crossIdx].enter)
+				{
+					t.onTouch(col, Config.Direction.Top);
+					character[crossIdx].enter = true;
+				}
+			}
+			else
+				character[crossIdx].enter = false;
+		}
+		else
+		{
+			if(tf.position.y > character[crossIdx].tf.position.y)
+			{
+				character[crossIdx].enter = false;
+ 				t.onDrop(col);
+			}
+			else
+				character[crossIdx].enter = true;
+		}
+	}
+
+	public bool allowToMove(PlayerController t, float deltaX)
+	{
+		if(crossIdx < 0)
+			return true;
+		Transform tf = t.transform;
+		bool isAllowToMove = true;
+		int nextIdx;
+		if(deltaX < 0)
+		{
+			if(tf.position.x + deltaX - t.halfWidth>= character[crossIdx].tf.position.x)
+				return isAllowToMove;
+			nextIdx = crossIdx -1;
+			if(nextIdx < 0)
+				return isAllowToMove;
+			if(character[nextIdx].tf.position.y - tf.position.y > 0)
+				isAllowToMove = false;
+		}
+		else if(deltaX > 0)
+		{
+			if(tf.position.x + deltaX + t.halfWidth<= character[crossIdx].tf.position.x + character[crossIdx].fontData.width)
+				return isAllowToMove;
+			nextIdx = crossIdx+1;
+			if(nextIdx >= character.Count)
+				return isAllowToMove;
+			if(character[nextIdx].tf.position.y - tf.position.y > 0)
+				isAllowToMove = false;
+		}
+
+		return isAllowToMove;
 	}
 
 	public void enter(PlayerController t)
@@ -70,23 +160,31 @@ public class Test : MonoBehaviour {
 		Transform tf = t.transform;
 		for(int i = 0; i < lastIdx; i++)
 		{
-			if(tf.position.x > character[i].transform.position.x && tf.position.x < character[i+1].transform.position.x)
+			if(tf.position.x > character[i].tf.position.x && tf.position.x < character[i+1].tf.position.x)
 			{
 				crossIdx = i;
 				break;
 			}
 
 		}
-
 		if(crossIdx == -1)
-			crossIdx = lastIdx;
+		{
+			leave();
+			return;
+		}
 
-
-
+		check(t);
 	}
 
 	public void leave()
 	{
 		hasEntered = false;
 	}
+}
+
+public class CharacterCell
+{
+	public FontData fontData;
+	public Transform tf;
+	public bool enter;
 }

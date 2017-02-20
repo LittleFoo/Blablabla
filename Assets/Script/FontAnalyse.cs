@@ -37,7 +37,7 @@ public class FontAnalyse : MonoBehaviour {
 				k++;
 			}
 
-			if(strs[k].Equals("lineHeight"))
+			if(strs[k].Equals("base"))
 			{
 				lineHeight = int.Parse(strs[k+1]);
 				k++;

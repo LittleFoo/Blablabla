@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 7ca4c96bf05ab4394873c4390c7eb1f9
-timeCreated: 1487144951
+timeCreated: 1487577301
 licenseType: Pro
 TextureImporter:
   fileIDToRecycleName:
@@ -157,7 +157,7 @@ TextureImporter:
         y: 235
         width: 5
         height: 19
-      alignment: 0
+      alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
@@ -245,9 +245,9 @@ TextureImporter:
         y: 225
         width: 11
         height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 1, z: 0, w: 0}
       outline: []
     - name: testfont@2x_9
       rect:
