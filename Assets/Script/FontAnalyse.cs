@@ -8,24 +8,27 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 
 public class FontAnalyse : MonoBehaviour {
-
+	public Dictionary<object, bool> _editorListItemStates = new Dictionary<object, bool>();
 	public Dictionary<int, FontData> fontDatas = new Dictionary<int, FontData>();
+	public List<FontData> fontDataList = new List<FontData>();
+	public string ImgPath;
+	public string DataPath;
+	public Texture2D texture;
 	private int _textHeight;
 	private int _minOffsety = 999;
 	public int lineHeight;
 	private string[] stringSeparators = new string[] { "\n" };
 
 	void Awake () {
-		slice("Assets/Font/testfont@2x.png", "Assets/Font/testfont@2x.txt");
+		createSprite();
 	}
 
 	public void getFontData(string fileName)
 	{
 		string[] stringSeparatorsSpace = new string[] { " ", "=" };
-		AssetDatabase.LoadAssetAtPath<TextAsset>(fileName);
+	
 
-
-		TextAsset s = AssetDatabase.LoadAssetAtPath<TextAsset>(fileName);
+		TextAsset s = Resources.Load<TextAsset>(fileName);
 		string[] lineArray = s.text.Split(stringSeparators, StringSplitOptions.None);
 
 		string[] strs = lineArray[1].Split(stringSeparatorsSpace, StringSplitOptions.None);
@@ -34,18 +37,17 @@ public class FontAnalyse : MonoBehaviour {
 			if(strs[k].Equals("scaleH"))
 			{
 				_textHeight = int.Parse(strs[k+1]);
-				k++;
+				break;
 			}
 
-			if(strs[k].Equals("base"))
-			{
-				lineHeight = int.Parse(strs[k+1]);
-				k++;
-			}
+//			if(strs[k].Equals("base"))
+//			{
+//				lineHeight = int.Parse(strs[k+1]);
+//				k++;
+//			}
 		}
 
 		int i = 0;
-		string line;
 		string[] words;
 		FontData data;
 		PropertyInfo pi;
@@ -67,32 +69,98 @@ public class FontAnalyse : MonoBehaviour {
 			}
 			if(data.yoffset < _minOffsety)
 				_minOffsety = data.yoffset;
-			
-			fontDatas.Add(int.Parse(words[2]), data);
+			data.Name = ((char)data.id).ToString();
+//			fontDatas.Add(int.Parse(words[2]), data);
+			fontDataList.Add(data);
 		}
 	}
 		
-	private void slice(string imgPath, string docPath)
+	public void slice(string imgPath, string docPath)
 	{
-		Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(imgPath);
+		string spriteDir = Application.dataPath + "/Resources/" + docPath;
+		spriteDir = spriteDir.Substring(0, spriteDir.LastIndexOf("/"));
+		string subName;
+		GameObject go;
+		clear();
+		texture = Resources.Load<Texture2D>(imgPath);
 		getFontData(docPath);
-		Dictionary<int, FontData>.Enumerator e = fontDatas.GetEnumerator();
 		FontData d;
-		while(e.MoveNext())
+		for(int i = 0; i < fontDataList.Count; i++)
 		{
-			d = e.Current.Value;
-			d.spr = Sprite.Create(texture, new Rect(d.x, (_textHeight - d.y - d.height), d.width, d.height), new Vector2(0, 1), 1);
+			d = fontDataList[i];
+
 			d._actualOffsetY = d.yoffset-_minOffsety;
+			if(lineHeight < d._actualOffsetY+ d.height)
+				lineHeight = d._actualOffsetY+ d.height;
+			
+//			d.spr = Sprite.Create(texture, new Rect(d.x, (_textHeight - d.y - d.height), d.width, d.height), new Vector2(0, 1), 1);
+			d.spr = Resources.LoadAll<Sprite>("Font/testFont/testfont@2x")[55];
+			ushort[]  t = d.spr.triangles;
+			Vector2[] v = d.spr.vertices;
+//			go = new GameObject(d.Name);
+//			go.AddComponent<SpriteRenderer>().sprite = d.spr;
+//			go.AddComponent<PolygonCollider2D>();
+			subName = spriteDir + "/" + d.id.ToString() + ".prefab";
+			subName = subName.Substring(subName.IndexOf("Assets"));
+//			d.prefab = PrefabUtility.CreatePrefab(subName, go);
+//			GameObject.DestroyImmediate(go);
 		}
+
+	}
+
+	public void createSprite()
+	{
+		FontData d;
+//		int width, height;
+//		Color c;
+//		int count;
+//		Rect rect;
+		for(int i = 0; i < fontDataList.Count; i++)
+		{
+			d = fontDataList[i];
+			fontDatas.Add(d.id, d);
+//			rect = d.spr.rect;
+//			d.pixelArray = new List<List<int>>(d.width);
+//			for(int j = 0; j < d.width; j++)
+//			{
+//				d.pixelArray.Add(new List<int>(lineHeight));
+//				count = lineHeight - d.height - d._actualOffsetY;
+//				for(int k = 0; k < count; k++)
+//				{
+//					d.pixelArray[j].Add(0);
+//				}
+//				for(int k = 0; k < rect.height; k++)
+//				{
+//					width = (int)(j + rect.x);
+//					height = (int)(k+ rect.y);
+//					c = texture.GetPixel(width, height);
+//					if(c.a == 0)
+//						d.pixelArray[j].Add(0);
+//					else
+//						d.pixelArray[j].Add(1);
+//				}
+//				for(int k = lineHeight - d._actualOffsetY; k < lineHeight; k++)
+//				{
+//					d.pixelArray[j].Add(0);
+//				}
+//			}
+		}
+	}
+
+	public void clear()
+	{
+		fontDataList.Clear();
+		fontDatas.Clear();
 	}
 }
 
+[System.Serializable]
 public class FontData
 {
 	public int _id;
 	public int id
 	{
-		get{return id;}
+		get{return _id;}
 		set{_id = value;}
 	}
 	public int _x;
@@ -138,5 +206,8 @@ public class FontData
 		set{_xadvance = value;}
 	}
 	public Sprite spr;
+	public string Name;
 	public int _actualOffsetY;
+	public List<List<int>> pixelArray;
+	public GameObject prefab;
 }

@@ -154,6 +154,7 @@ public class PlayerController : MonoBehaviour {
 
 	public void OnTriggerEnter2D(Collider2D other)
 	{
+		print(other.name);
 		if(other.GetComponent<Test>() == null)
 			return;
 		_enteredTrigger = other.GetComponent<Test>();

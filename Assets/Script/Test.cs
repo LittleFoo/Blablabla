@@ -9,6 +9,7 @@ public class Test : MonoBehaviour {
 	public FontAnalyse analyse;
 	public BoxCollider2D col;
 	private List<CharacterCell> character = new List<CharacterCell>();
+	private List<List<int>> blocks = new List<List<int>>(500);
 	private bool hasEntered = false;
 	private int crossIdx;
 	private char[] chars ;
@@ -18,6 +19,7 @@ public class Test : MonoBehaviour {
 		FontData d = new FontData();
 		CharacterCell cell;
 		int x = 0;
+		int lastIdx = 0;
 		chars = contentStr.ToCharArray();
 		for(int i = 0; i < chars.Length; i++)
 		{
@@ -33,6 +35,27 @@ public class Test : MonoBehaviour {
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
+				//gap
+//				for(int j = lastIdx; j < x; j++)
+//				{
+//					blocks.Add(new List<int>(analyse.lineHeight));
+//					for(int k = 0; k < analyse.lineHeight; k++)
+//					{
+//						blocks[j].Add(0);
+//					}
+//				}
+//
+//				lastIdx = x+d.width;
+//				for(int j = 0; j < d.width; j++)
+//				{
+//					blocks.Add(new List<int>(analyse.lineHeight));
+//
+//					for(int k = 0; k < d.pixelArray[j].Count; k++)
+//					{
+//						blocks[j].Add(d.pixelArray[j][k]);
+//					}
+//				}
+
 				x += d.xadvance;
 			}
 			spr.sprite = d.spr;
@@ -42,6 +65,18 @@ public class Test : MonoBehaviour {
 			character.Add(cell);
 		}
 
+//		System.Text.StringBuilder sb = new System.Text.StringBuilder();
+//		for(int j = 35; j > 0; j--)
+//		{
+//			for(int i = 0; i < blocks.Count; i++)
+//			{
+//				if(j>=blocks[i].Count)
+//					continue;
+//				sb.Append(blocks[i][j].ToString());
+//			}
+//			sb.Append("\n");
+//		}
+//		print(sb.ToString());
 		col.size = new Vector2(x + d.width, analyse.lineHeight);
 		col.offset = new Vector2(col.size.x*0.5f, - col.size.y*0.5f);
 	}
@@ -75,7 +110,7 @@ public class Test : MonoBehaviour {
 
 		if(crossIdx < 0 || (chars[crossIdx] == " "[0] && tf.position.y < character[crossIdx].tf.position.y))
 		{
-			col.enabled = false;
+//			col.enabled = false;
 			t.onDrop(col);
 			return;
 		}
