@@ -116,7 +116,6 @@ public class SpriteAnimation : MonoBehaviour, ITimerEvent {
 		
 		if(_deltaFrame <= 0)
 			_deltaFrame = 1;
-
 		_curUpdateCount();
 	}
 

@@ -16,53 +16,40 @@ public class Test : MonoBehaviour {
 	void Start () {
 		GameObject obj;
 		SpriteRenderer spr;
-		FontData d = new FontData();
+		FontData d;
 		CharacterCell cell;
 		int x = 0;
 		int lastIdx = 0;
+		Rigidbody2D rb;
 		chars = contentStr.ToCharArray();
 		for(int i = 0; i < chars.Length; i++)
 		{
-			obj = new GameObject();
-			cell = new CharacterCell();
-			spr = obj.AddComponent<SpriteRenderer>();
-			spr.color = Color.blue;
-			spr.sortingOrder = 1;
-			obj.transform.SetParent(transform, false);
-			obj.name = chars[i].ToString();
-
-
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
+				obj = GameObject.Instantiate(d.prefab);
+				cell = new CharacterCell();
+				spr = obj.GetComponent<SpriteRenderer>();
+				spr.color = Color.blue;
+				spr.sortingOrder = 1;
+				obj.transform.SetParent(transform, false);
+				obj.name = chars[i].ToString();
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
-				//gap
-//				for(int j = lastIdx; j < x; j++)
-//				{
-//					blocks.Add(new List<int>(analyse.lineHeight));
-//					for(int k = 0; k < analyse.lineHeight; k++)
-//					{
-//						blocks[j].Add(0);
-//					}
-//				}
-//
-//				lastIdx = x+d.width;
-//				for(int j = 0; j < d.width; j++)
-//				{
-//					blocks.Add(new List<int>(analyse.lineHeight));
-//
-//					for(int k = 0; k < d.pixelArray[j].Count; k++)
-//					{
-//						blocks[j].Add(d.pixelArray[j][k]);
-//					}
-//				}
+				if(d.id != 32)
+				{
+					rb = obj.AddComponent<Rigidbody2D>();
+					rb.gravityScale = 0;
+					rb.constraints = RigidbodyConstraints2D.FreezeAll;
+					obj.AddComponent<CharacterCell>();
+				}
 
 				x += d.xadvance;
-			}
-			spr.sprite = d.spr;
+				spr.sprite = d.spr;
 
-			cell.tf = obj.transform;
-			cell.fontData = d;
-			character.Add(cell);
+				cell.tf = obj.transform;
+				cell.fontData = d;
+				character.Add(cell);
+			}
+
 		}
 
 //		System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -77,8 +64,8 @@ public class Test : MonoBehaviour {
 //			sb.Append("\n");
 //		}
 //		print(sb.ToString());
-		col.size = new Vector2(x + d.width, analyse.lineHeight);
-		col.offset = new Vector2(col.size.x*0.5f, - col.size.y*0.5f);
+//		col.size = new Vector2(x + d.width, analyse.lineHeight);
+//		col.offset = new Vector2(col.size.x*0.5f, - col.size.y*0.5f);
 	}
 
 	public void check(PlayerController t)
@@ -217,9 +204,9 @@ public class Test : MonoBehaviour {
 	}
 }
 
-public class CharacterCell
-{
-	public FontData fontData;
-	public Transform tf;
-	public bool enter;
-}
+//public class CharacterCell
+//{
+//	public FontData fontData;
+//	public Transform tf;
+//	public bool enter;
+//}

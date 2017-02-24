@@ -93,16 +93,18 @@ public class FontAnalyse : MonoBehaviour {
 			if(lineHeight < d._actualOffsetY+ d.height)
 				lineHeight = d._actualOffsetY+ d.height;
 			
-//			d.spr = Sprite.Create(texture, new Rect(d.x, (_textHeight - d.y - d.height), d.width, d.height), new Vector2(0, 1), 1);
-			d.spr = Resources.LoadAll<Sprite>("Font/testFont/testfont@2x")[55];
-			ushort[]  t = d.spr.triangles;
-			Vector2[] v = d.spr.vertices;
-//			go = new GameObject(d.Name);
-//			go.AddComponent<SpriteRenderer>().sprite = d.spr;
-//			go.AddComponent<PolygonCollider2D>();
+			d.spr = Sprite.Create(texture, new Rect(d.x, (_textHeight - d.y - d.height), d.width, d.height), new Vector2(0, 1), 1);
+
+			go = new GameObject(d.id.ToString());
+			go.AddComponent<SpriteRenderer>().sprite = d.spr;
+			if(d.id != 32)
+			go.AddComponent<BoxCollider2D>();
 			subName = spriteDir + "/" + d.id.ToString() + ".prefab";
 			subName = subName.Substring(subName.IndexOf("Assets"));
-//			d.prefab = PrefabUtility.CreatePrefab(subName, go);
+			d.prefab = go;//PrefabUtility.CreatePrefab(subName, go);
+			go.transform.SetParent(transform);
+			go.transform.localPosition = new Vector3(37*(i%20), 37*(int)(i/20), 0);
+//			print(d.prefab.GetComponent<SpriteRenderer>().sprite);
 //			GameObject.DestroyImmediate(go);
 		}
 
@@ -149,6 +151,11 @@ public class FontAnalyse : MonoBehaviour {
 
 	public void clear()
 	{
+		for(int i = 0; i < fontDataList.Count; i++)
+		{
+			GameObject.DestroyImmediate(fontDataList[i].prefab);
+			GameObject.DestroyImmediate(fontDataList[i].spr, true);
+		}
 		fontDataList.Clear();
 		fontDatas.Clear();
 	}
