@@ -9,7 +9,25 @@ using System.Reflection;
 
 public class FontAnalyse : MonoBehaviour {
 	public Dictionary<object, bool> _editorListItemStates = new Dictionary<object, bool>();
-	public Dictionary<int, FontData> fontDatas = new Dictionary<int, FontData>();
+	private Dictionary<int, FontData> _fontDatas = new Dictionary<int, FontData>();
+	public Dictionary<int, FontData> fontDatas
+	{
+		get
+		{
+			if(_fontDatas.Count == 0)
+			{
+				FontData d;
+				for(int i = 0; i < fontDataList.Count; i++)
+				{
+					d = fontDataList[i];
+					_fontDatas.Add(d.id, d);
+					d.colList = d.prefab.GetComponents<BoxCollider2D>();
+				}
+			}
+
+			return _fontDatas;
+		}
+	}
 	public List<FontData> fontDataList = new List<FontData>();
 	public string ImgPath;
 	public string DataPath;
@@ -104,6 +122,7 @@ public class FontAnalyse : MonoBehaviour {
 			d.prefab = go;//PrefabUtility.CreatePrefab(subName, go);
 			go.transform.SetParent(transform);
 			go.transform.localPosition = new Vector3(37*(i%20), 37*(int)(i/20), 0);
+			_fontDatas.Add(d.id, d);
 //			print(d.prefab.GetComponent<SpriteRenderer>().sprite);
 //			GameObject.DestroyImmediate(go);
 		}
@@ -120,7 +139,8 @@ public class FontAnalyse : MonoBehaviour {
 		for(int i = 0; i < fontDataList.Count; i++)
 		{
 			d = fontDataList[i];
-			fontDatas.Add(d.id, d);
+			_fontDatas.Add(d.id, d);
+			d.colList = d.prefab.GetComponents<BoxCollider2D>();
 //			rect = d.spr.rect;
 //			d.pixelArray = new List<List<int>>(d.width);
 //			for(int j = 0; j < d.width; j++)
@@ -157,7 +177,7 @@ public class FontAnalyse : MonoBehaviour {
 			GameObject.DestroyImmediate(fontDataList[i].spr, true);
 		}
 		fontDataList.Clear();
-		fontDatas.Clear();
+		_fontDatas.Clear();
 	}
 }
 
@@ -215,6 +235,6 @@ public class FontData
 	public Sprite spr;
 	public string Name;
 	public int _actualOffsetY;
-	public List<List<int>> pixelArray;
 	public GameObject prefab;
-}
+	public BoxCollider2D[] colList;
+}	

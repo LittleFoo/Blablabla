@@ -817,6 +817,13 @@ public static class PGEditorUtils
 			fieldInfo.SetValue(instance, val);
 			return;
 		}
+		else if (fieldInfo.FieldType == typeof(Vector2))
+		{
+			var val = (Vector2)fieldInfo.GetValue(instance);
+			val = EditorGUILayout.Vector2Field(label, val);
+			fieldInfo.SetValue(instance, val);
+			return;
+		}
 		else if (fieldInfo.FieldType == typeof(Color))
 		{
 			var val = (Color)fieldInfo.GetValue(instance);
@@ -960,13 +967,13 @@ public static class PGEditorUtils
     /// Used by AddFoldOutListItemButtons to return which button was pressed, and by 
     /// UpdateFoldOutListOnButtonPressed to process the pressed button for regular lists
     /// </summary>
-    private enum LIST_BUTTONS { None, Up, Down, Add, Remove }
+    public enum LIST_BUTTONS { None, Up, Down, Add, Remove }
 
     /// <summary>
     /// Adds the buttons which control a list item
     /// </summary>
     /// <returns>LIST_BUTTONS - The LIST_BUTTONS pressed or LIST_BUTTONS.None</returns>
-    private static LIST_BUTTONS AddFoldOutListItemButtons()
+	public static LIST_BUTTONS AddFoldOutListItemButtons()
     {
         #region Layout
         int buttonSpacer = 6;

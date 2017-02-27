@@ -131,8 +131,8 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 	public void OnCollisionEnter2D(Collision2D coll)
 	{
-		for(int i = 0; i < coll.contacts.Length; i++)
-			print(coll.contacts[i].point.y - tf.position.y);
+//		for(int i = 0; i < coll.contacts.Length; i++)
+//			print(coll.contacts[i].point.y - tf.position.y);
 
 		float delta = coll.contacts[0].point.y - tf.position.y;
 		if(delta < 10)
