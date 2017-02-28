@@ -6,6 +6,7 @@ public class CharacterAnimation : MonoBehaviour {
 	public Sprite[] idle;
 	public Sprite[] jump;
 	public SpriteAnimation ani;
+	public Config.CharcterAction lastAct;
 	// Use this for initialization
 	void Awake () {
 		if(ani == null)
@@ -14,6 +15,9 @@ public class CharacterAnimation : MonoBehaviour {
 	
 	public void play(Config.CharcterAction act)
 	{
+		if(act == lastAct)
+			return;
+		lastAct = act;
 		switch(act)
 		{
 		case Config.CharcterAction.Idle:

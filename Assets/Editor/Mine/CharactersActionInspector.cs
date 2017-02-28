@@ -159,17 +159,19 @@ public class CharactersActionInspector : Editor {
 
 				// Display Fields Dynamically
 				item.actionType = PGEditorUtils.EnumPopup<Config.ColliderAction>("actionType", item.actionType);
+				item.condition = PGEditorUtils.EnumPopup<Config.ActionTriggerType>("triggerCondition", item.condition);
+				PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("loop"));
 				switch(item.actionType)
 				{
 				case Config.ColliderAction.Movement:
-					drawRegion(x=>item.startVal = x, tf.position, x=>tf.position = x, item.startVal, item, "startVal");
-					drawRegion(x=>item.endVal = x, tf.position, x=>tf.position = x, item.endVal, item, "endVal");
+					drawRegion(x=>item.startVal = x, tf.localPosition, x=>tf.localPosition = x, item.startVal, item, "startVal");
+					drawRegion(x=>item.endVal = x, tf.localPosition, x=>tf.localPosition = x, item.endVal, item, "endVal");
 					break;
 				case Config.ColliderAction.Rotation:
-					drawRegion(x=>item.startVal = x, tf.rotation.eulerAngles,
-						x=>tf.rotation = Quaternion.Euler( item.startVal), item.startVal, 
+					drawRegion(x=>item.startVal = x, tf.localRotation.eulerAngles,
+						x=>tf.localRotation = Quaternion.Euler( item.startVal), item.startVal, 
 						item, "startVal");
-					drawRegion(x=>item.endVal = x, tf.rotation.eulerAngles, x=>tf.rotation = x, Quaternion.Euler( item.endVal), item, "endVal");
+					drawRegion(x=>item.endVal = x, tf.localRotation.eulerAngles, x=>tf.localRotation = x, Quaternion.Euler( item.endVal), item, "endVal");
 					break;
 				case Config.ColliderAction.Scale:
 					drawRegion(x=>item.startVal = x, tf.localScale, x=>tf.localScale = x, item.startVal, item, "startVal");
@@ -233,8 +235,8 @@ public class CharactersActionInspector : Editor {
 	}
 
 
-//	drawRegion(()=>{item.startVal = target.position;},
-//		()=>{target.position = item.startVal;},
+//	drawRegion(()=>{item.startVal = target.localPosition;},
+//		()=>{target.localPosition = item.startVal;},
 //		()=>{PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("startVal"));});
 
 	public delegate T DOGetter<out T> ();

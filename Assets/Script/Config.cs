@@ -6,4 +6,8 @@ public class Config {
 	public enum CharcterAction{Walk, Idle, Jump}
 	public enum ColliderAction{Movement, Rotation, Scale, Alpha}
 	public enum Pivot{TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom, BottomRight}
+	public enum ActionTriggerType{Awake, onCollider}
+
+	public const string TAG_GROUP = "CharacterGroup";
+	public const string TAG_CHAR = "Character";
 }

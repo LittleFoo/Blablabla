@@ -17,7 +17,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 	void Start()
 	{
 		ani.play(Config.CharcterAction.Jump);
-		initScaleX = transform.localScale.x;
+		initScaleX = transform.lossyScale.x;
 		tf = transform;
 		height = GetComponent<BoxCollider2D>().size.y * transform.localScale.y;
 	}
@@ -34,9 +34,9 @@ public class PhysicalPlayerController : MonoBehaviour {
 				{
 					ani.play(Config.CharcterAction.Walk);
 					curArrowStatus = arrowStatus;
+					if(tf.lossyScale.x != initScaleX)
+						tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 				}
-				tf.localScale = new Vector3(initScaleX, tf.localScale.y, tf.localScale.z);
-
 			}
 		}
 		else if(Input.GetKeyDown(KeyCode.LeftArrow))
@@ -47,9 +47,10 @@ public class PhysicalPlayerController : MonoBehaviour {
 				if(curArrowStatus != arrowStatus)
 				{
 					curArrowStatus = arrowStatus;
-					tf.localScale = new Vector3(-initScaleX, tf.localScale.y, tf.localScale.z);
+					if(tf.lossyScale.x == initScaleX)
+						tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
+					ani.play(Config.CharcterAction.Walk);
 				}
-				ani.play(Config.CharcterAction.Walk);
 			}
 		}
 
@@ -57,6 +58,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 		{
 			arrowStatus =  Config.Direction.None;
 			curArrowStatus = arrowStatus;
+			rb.velocity = new Vector2(0, rb.velocity.y);
 			if(isBottom > 0)
 			{
 				ani.play(Config.CharcterAction.Idle);
@@ -67,6 +69,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 		{
 			arrowStatus =  Config.Direction.None;
 			curArrowStatus = arrowStatus;
+			rb.velocity = new Vector2(0, rb.velocity.y);
 			if(isBottom > 0)
 			{
 				ani.play(Config.CharcterAction.Idle);
@@ -81,13 +84,22 @@ public class PhysicalPlayerController : MonoBehaviour {
 		isBottom = 1;
 		curArrowStatus = arrowStatus;
 		if(curArrowStatus == Config.Direction.None)
+		{
 			ani.play(Config.CharcterAction.Idle);
+			rb.velocity = Vector2.zero;
+		}
 		else
 		{
 			if(curArrowStatus == Config.Direction.Left)
-				tf.localScale = new Vector3(-initScaleX, tf.localScale.y, tf.localScale.z);
+			{
+				if(tf.lossyScale.x == initScaleX)
+					tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
+			}
 			else
-				tf.localScale = new Vector3(initScaleX, tf.localScale.y, tf.localScale.z);
+			{
+				if(tf.lossyScale.x != initScaleX)
+					tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
+			}
 			ani.play(Config.CharcterAction.Walk);
 		}
 //		rb.constraints = RigidbodyConstraints2D.FreezePosition;
@@ -103,7 +115,6 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 	void FixedUpdate()
 	{
-		
 		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
 		{
 			isBottom = 0;
@@ -118,11 +129,16 @@ public class PhysicalPlayerController : MonoBehaviour {
 		switch(curArrowStatus)
 		{
 		case Config.Direction.Left:
+			
+			if(rb.velocity.x >= -moveForce)
 			rb.AddForce(Vector2.left * moveForce);
+			print("left:"+rb.velocity.x);
 			break;
 
 		case Config.Direction.Right:
+			if(rb.velocity.x <= moveForce)
 			rb.AddForce(Vector2.right * moveForce);
+			print("Right:"+rb.velocity.x);
 			break;
 
 
@@ -133,24 +149,46 @@ public class PhysicalPlayerController : MonoBehaviour {
 	{
 //		for(int i = 0; i < coll.contacts.Length; i++)
 //			print(coll.contacts[i].point.y - tf.position.y);
-
 		float delta = coll.contacts[0].point.y - tf.position.y;
 		if(delta < 10)
+		{
+			if(isBottom <= 0)
 			onBottom();
+			if(coll.gameObject.tag == Config.TAG_CHAR)
+			{
+				coll.gameObject.GetComponent<CharacterCell>().onPlayerLand(this);
+			}
+		}
 		else if(delta > height)
 		{
 			rb.AddForce(Vector2.down * hitForce);
 			coll.transform.GetComponent<CharacterCell>().pushUp();
 		}
-		isBottom++;
+
+
 	}
 
-	void OnCollisionExit2D(Collision2D coll)
+	public void OnTriggerEnter2D(Collider2D coll)
 	{
-		if(isBottom > 0)
-			isBottom --;
-		if(isBottom <= 0)
-			ani.play(Config.CharcterAction.Jump);
+		if(coll.gameObject.tag == Config.TAG_GROUP)
+			tf.SetParent(coll.transform, true);
+		
+	
 	}
 
+	public void OnTriggerExit2D(Collider2D coll)
+	{
+		if(coll.transform == tf.parent)
+			tf.SetParent(null, true);
+	}
+
+	public void Rebound(Vector2 param)
+	{
+		isBottom = 0;
+		allowToPressSpace = false;
+		curArrowStatus = Config.Direction.None;
+		rb.velocity = Vector2.zero;
+		rb.AddForce(param);
+		ani.play(Config.CharcterAction.Jump);
+	}
 }

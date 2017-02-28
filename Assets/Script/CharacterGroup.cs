@@ -38,7 +38,11 @@ public class CharacterGroup : MonoBehaviour {
 	private string _lastStr;
 	private float _textWidth;
 	void Start () {
-		print(_character.Count);
+		gameObject.tag = Config.TAG_GROUP;
+		for(int i = 0; i < _character.Count; i++)
+		{
+			_character[i].init();
+		}
 	}
 
 	public void setPivot()
@@ -60,6 +64,13 @@ public class CharacterGroup : MonoBehaviour {
 				x += d.xadvance;
 			}
 		}
+
+		BoxCollider2D col = GetComponent<BoxCollider2D>();
+		if(col == null)
+			col = gameObject.AddComponent<BoxCollider2D>();
+		col.size = new Vector2(_textWidth, analyse.lineHeight);
+		col.offset = new Vector2((0.5f - pivot.x)*_textWidth,  	(0.5f-pivot.y)*analyse.lineHeight);
+		col.isTrigger = true;
 
 	}
 
@@ -114,6 +125,7 @@ public class CharacterGroup : MonoBehaviour {
 					}
 				}
 
+				obj.tag = Config.TAG_CHAR;
 				spr = obj.GetComponent<SpriteRenderer>();
 				spr.color = Color.blue;
 				spr.sortingOrder = 1;
