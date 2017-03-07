@@ -23,7 +23,7 @@ public class CharacterCell : MonoBehaviour
 
 	public void init()
 	{
-		handlers.TryGetValue(fontData.id, out _onPlayerEnter);
+		CharacterHandler.instance.handlers.TryGetValue(fontData.id, out _onPlayerEnter);
 	}
 
 
@@ -44,8 +44,10 @@ public class CharacterCell : MonoBehaviour
 		handlers.Add(62, angleBracketRightTrigger);
 	}
 
+
 	public void onPlayerLand(PhysicalPlayerController pp)
 	{
+		CharacterHandler.instance.handlers.TryGetValue(fontData.id, out _onPlayerEnter);
 		if(_onPlayerEnter != null)
 			_onPlayerEnter(pp, this);
 	}

@@ -2,7 +2,6 @@
 using System.Collections;
 using PathologicalGames;
 
-[ExecuteInEditMode]
 public class GlobalController : MonoBehaviour {
 
 	public PrefabSetting prefabSetting;
@@ -24,7 +23,7 @@ public class GlobalController : MonoBehaviour {
 		if(_instance != null) throw new System.Exception("GlobalController is a singleton");
 		_instance = this;
 		Application.targetFrameRate = 60;
-		CharacterCell.initHandler();
+//		CharacterCell.initHandler();
 	}
 	
 	// Update is called once per frame
