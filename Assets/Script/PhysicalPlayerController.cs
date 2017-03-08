@@ -89,6 +89,22 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 		if(Input.GetKeyUp(KeyCode.Space))
 			allowToPressSpace = true;
+
+		switch(curArrowStatus)
+		{
+		case Config.Direction.Left:
+
+			if(rb.velocity.x >= -moveForce)
+				rb.AddForce(Vector2.left * moveForce);
+			print("left:"+rb.velocity.x);
+			break;
+
+		case Config.Direction.Right:
+			if(rb.velocity.x <= moveForce)
+				rb.AddForce(Vector2.right * moveForce);
+			print("Right:"+rb.velocity.x);
+			break;
+		}
 	}
 
 	void onBottom()
@@ -123,25 +139,6 @@ public class PhysicalPlayerController : MonoBehaviour {
 	{
 		yield return nextFrame;
 		rb.constraints = RigidbodyConstraints2D.FreezePositionX;
-	}
-
-	void FixedUpdate()
-	{
-		switch(curArrowStatus)
-		{
-		case Config.Direction.Left:
-			
-			if(rb.velocity.x >= -moveForce)
-			rb.AddForce(Vector2.left * moveForce);
-			print("left:"+rb.velocity.x);
-			break;
-
-		case Config.Direction.Right:
-			if(rb.velocity.x <= moveForce)
-			rb.AddForce(Vector2.right * moveForce);
-			print("Right:"+rb.velocity.x);
-			break;
-		}
 	}
 
 	public void OnCollisionEnter2D(Collision2D coll)
