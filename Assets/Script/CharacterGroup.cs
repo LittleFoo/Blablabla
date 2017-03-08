@@ -33,6 +33,7 @@ public class CharacterGroup : MonoBehaviour {
 		get{return _pivot;}
 	}
 	public FontAnalyse analyse;
+	public Color color = Color.black;
 	public List<CharacterCell> _character = new List<CharacterCell>();
 	private char[] chars ;
 	private string _lastStr;
@@ -127,7 +128,7 @@ public class CharacterGroup : MonoBehaviour {
 
 				obj.tag = Config.TAG_CHAR;
 				spr = obj.GetComponent<SpriteRenderer>();
-				spr.color = Color.blue;
+				spr.color = color;
 				spr.sortingOrder = 1;
 				obj.transform.SetParent(transform, false);
 				obj.name = chars[i].ToString();
@@ -200,7 +201,7 @@ public class CharacterGroup : MonoBehaviour {
 				}
 
 				spr = obj.GetComponent<SpriteRenderer>();
-				spr.color = Color.blue;
+				spr.color = color;
 				spr.sortingOrder = 1;
 				obj.transform.SetParent(transform, false);
 				obj.name = chars[i].ToString();

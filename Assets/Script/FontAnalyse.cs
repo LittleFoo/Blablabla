@@ -78,8 +78,11 @@ public class FontAnalyse : MonoBehaviour {
 			data = new FontData();
 			for(int j = 1; j < words.Length; j++)
 			{
+				if(words[j] == "")
+					continue;
 				pi = t.GetProperty(words[j]);
 				j++;
+
 				if (pi == null)
 					continue;
 

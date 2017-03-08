@@ -13,6 +13,7 @@ public class CharacterGroupInspector : Editor {
 		script.contentStr = EditorGUILayout.TextField("contentStr", script.contentStr);
 		script.fontObj = (Transform)EditorGUILayout.ObjectField("fontObj", script.fontObj, typeof(Transform)); 
 		script.pivot = EditorGUILayout.Vector2Field("pivot", script.pivot);
+		script.color = EditorGUILayout.ColorField("color",script.color);
 //		this.expandPrefabs = PGEditorUtils.SerializedObjFoldOutList<CharacterCell>
 //			(
 //				"Per-Prefab Pool Options", 
