@@ -10,4 +10,5 @@ public class Config {
 
 	public const string TAG_GROUP = "CharacterGroup";
 	public const string TAG_CHAR = "Character";
+	public const string TAG_DANGER = "Danger";
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using DG.Tweening;
 
 public class PhysicalPlayerController : MonoBehaviour {
 	public Rigidbody2D rb;
@@ -14,6 +15,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 	private Config.Direction curArrowStatus = Config.Direction.None;
 	private float initScaleX;
 	private float height;
+	private bool isDead = false;
 	void Start()
 	{
 		ani.play(Config.CharcterAction.Jump);
@@ -24,7 +26,8 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 	void Update()
 	{
-		
+		if(isDead)
+			return;
 		if(Input.GetKeyDown(KeyCode.RightArrow))
 		{
 			arrowStatus =  Config.Direction.Right;
@@ -168,8 +171,27 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 	public void OnTriggerEnter2D(Collider2D coll)
 	{
-		if(coll.gameObject.tag == Config.TAG_GROUP)
+		switch(coll.gameObject.tag)
+		{
+		case Config.TAG_GROUP:
 			tf.SetParent(coll.transform, true);
+			break;
+
+		case Config.TAG_DANGER:
+			dead();
+			break;
+		}
+	}
+
+	public void dead()
+	{
+		isDead = true;
+		tf.GetComponent<Collider2D>().enabled = false;
+		rb.gravityScale = 0;
+		rb.velocity = Vector2.zero;
+		tf.DOMove(new Vector3(tf.position.x, tf.position.y + 20), 0.3f).OnComplete(()=>{
+			tf.DOMove(new Vector3(tf.position.x, -450), 1).SetDelay(1.0f);
+		});
 	}
 
 	public void OnTriggerExit2D(Collider2D coll)
