@@ -29,7 +29,11 @@ public class FontDataAnalyseInspector : Editor {
 			if (DragAndDrop.paths != null && DragAndDrop.paths.Length > 0) {
 				string sfxPath = DragAndDrop.paths [0];
 				// 拖拽的过程中，松开鼠标之后，拖拽操作结束，此时就可以使用获得的 sfxPath 变量了 
-				if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragExited) {
+				#if UNITY_EDITOR_OSX
+					if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragExited) {
+				#elif
+					if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragUpdated) {
+				#endif
 					DragAndDrop.AcceptDrag ();
 
 					script.ImgPath = common.TextUtil.cut( sfxPath, "Resources/", false, false);
@@ -49,7 +53,11 @@ public class FontDataAnalyseInspector : Editor {
 			if (DragAndDrop.paths != null && DragAndDrop.paths.Length > 0) {
 				string sfxPath = DragAndDrop.paths [0];
 				// 拖拽的过程中，松开鼠标之后，拖拽操作结束，此时就可以使用获得的 sfxPath 变量了 
+				#if UNITY_EDITOR_OSX
 				if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragExited) {
+				#elif
+				if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragUpdated) {
+				#endif
 					DragAndDrop.AcceptDrag ();
 
 					script.DataPath = common.TextUtil.cut( sfxPath, "Resources/", false, false);
