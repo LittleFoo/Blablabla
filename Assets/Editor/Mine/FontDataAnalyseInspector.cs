@@ -31,7 +31,7 @@ public class FontDataAnalyseInspector : Editor {
 				// 拖拽的过程中，松开鼠标之后，拖拽操作结束，此时就可以使用获得的 sfxPath 变量了 
 				#if UNITY_EDITOR_OSX
 					if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragExited) {
-				#elif
+				#else
 					if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragUpdated) {
 				#endif
 					DragAndDrop.AcceptDrag ();
@@ -55,7 +55,7 @@ public class FontDataAnalyseInspector : Editor {
 				// 拖拽的过程中，松开鼠标之后，拖拽操作结束，此时就可以使用获得的 sfxPath 变量了 
 				#if UNITY_EDITOR_OSX
 				if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragExited) {
-				#elif
+				#else
 				if (!string.IsNullOrEmpty (sfxPath) && Event.current.type == EventType.DragUpdated) {
 				#endif
 					DragAndDrop.AcceptDrag ();
