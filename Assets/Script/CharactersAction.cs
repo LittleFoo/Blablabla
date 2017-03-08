@@ -35,10 +35,23 @@ public class CharactersAction : MonoBehaviour
 			{
 			case Config.ColliderAction.Alpha:
 				SpriteRenderer[] sprs = tf.GetComponentsInChildren<SpriteRenderer>();
+
 				for(int j = 0; j < sprs.Length; j++)
 				{
-					ColorUtil.toAlpha(sprs[j], action.startAlpha);
-					ColorUtil.doFade(sprs[j], action.endAlpha, action.duration).SetLoops(action.loop,LoopType.Yoyo);
+					SpriteRenderer spr = sprs[j];
+					Collider2D[] sprCol = spr.GetComponents<Collider2D>();
+
+						
+					ColorUtil.toAlpha(spr, action.startAlpha);
+					ColorUtil.doFade(spr, action.endAlpha, action.duration).SetLoops(action.loop,LoopType.Yoyo).OnStepComplete(
+						()=>{
+							if(spr.color.a < 0.5f) 
+								for(int k = 0; k < sprCol.Length; k++)
+									sprCol[k].enabled = false;
+							else
+								for(int k = 0; k < sprCol.Length; k++)
+									sprCol[k].enabled = true;
+						});
 				}
 				break;
 
@@ -87,6 +100,7 @@ public class CharactersAction : MonoBehaviour
 			}
 		}
 	}
+
 }
 
 [System.Serializable]

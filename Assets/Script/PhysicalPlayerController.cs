@@ -76,7 +76,16 @@ public class PhysicalPlayerController : MonoBehaviour {
 			}
 		}
 
+		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
+		{
+			isBottom = 0;
+			allowToPressSpace = false;
+			rb.AddForce(Vector2.up * jumpForce);
+			ani.play(Config.CharcterAction.Jump);
+		}
 
+		if(Input.GetKeyUp(KeyCode.Space))
+			allowToPressSpace = true;
 	}
 
 	void onBottom()
@@ -115,17 +124,6 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 	void FixedUpdate()
 	{
-		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
-		{
-			isBottom = 0;
-			allowToPressSpace = false;
-			rb.AddForce(Vector2.up * jumpForce);
-			ani.play(Config.CharcterAction.Jump);
-		}
-
-		if(Input.GetKeyUp(KeyCode.Space))
-			allowToPressSpace = true;
-
 		switch(curArrowStatus)
 		{
 		case Config.Direction.Left:
@@ -140,8 +138,6 @@ public class PhysicalPlayerController : MonoBehaviour {
 			rb.AddForce(Vector2.right * moveForce);
 			print("Right:"+rb.velocity.x);
 			break;
-
-
 		}
 	}
 
@@ -149,31 +145,31 @@ public class PhysicalPlayerController : MonoBehaviour {
 	{
 //		for(int i = 0; i < coll.contacts.Length; i++)
 //			print(coll.contacts[i].point.y - tf.position.y);
-		float delta = coll.contacts[0].point.y - tf.position.y;
-		if(delta < 10)
+		GameObject obj = coll.gameObject;
+		switch(coll.gameObject.tag)
 		{
-			if(isBottom <= 0)
-			onBottom();
-			if(coll.gameObject.tag == Config.TAG_CHAR)
+		case Config.TAG_CHAR:
+			float delta = coll.contacts[0].point.y - tf.position.y;
+			CharacterCell cell = obj.GetComponent<CharacterCell>();
+			if(delta < cell.fontData.height)
 			{
-				coll.gameObject.GetComponent<CharacterCell>().onPlayerLand(this);
+				if(isBottom <= 0)
+					onBottom();
+				cell.onPlayerLand(this);
 			}
+			else if(delta > height)
+			{
+				rb.AddForce(Vector2.down * hitForce);
+				coll.transform.GetComponent<CharacterCell>().pushUp();
+			}
+			break;
 		}
-		else if(delta > height)
-		{
-			rb.AddForce(Vector2.down * hitForce);
-			coll.transform.GetComponent<CharacterCell>().pushUp();
-		}
-
-
 	}
 
 	public void OnTriggerEnter2D(Collider2D coll)
 	{
 		if(coll.gameObject.tag == Config.TAG_GROUP)
 			tf.SetParent(coll.transform, true);
-		
-	
 	}
 
 	public void OnTriggerExit2D(Collider2D coll)
