@@ -10,18 +10,38 @@ public class PhysicalPlayerController : MonoBehaviour {
 	public float jumpForce;
 	public float hitForce;
 	public Transform tf;
+	public bool _autoJump;
+	public bool autoJump
+	{
+		get{return _autoJump;}
+		set{
+			_autoJump = value;
+			if(_autoJump)
+				jumpHandler = autoJumpHandler;
+			else
+				jumpHandler = spaceJumpHandler;
+		}
+	}
 	private bool allowToPressSpace = true;
 	private Config.Direction arrowStatus = Config.Direction.None;
 	private Config.Direction curArrowStatus = Config.Direction.None;
 	private float initScaleX;
 	private float height;
 	private bool isDead = false;
+	private System.Action jumpHandler;
+
+
 	void Start()
 	{
 		ani.play(Config.CharcterAction.Jump);
 		initScaleX = transform.lossyScale.x;
 		tf = transform;
 		height = GetComponent<BoxCollider2D>().size.y * transform.localScale.y;
+
+		if(_autoJump)
+			jumpHandler = autoJumpHandler;
+		else
+			jumpHandler = spaceJumpHandler;
 	}
 
 	void Update()
@@ -79,17 +99,6 @@ public class PhysicalPlayerController : MonoBehaviour {
 			}
 		}
 
-		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
-		{
-			isBottom = 0;
-			allowToPressSpace = false;
-			rb.AddForce(Vector2.up * jumpForce);
-			ani.play(Config.CharcterAction.Jump);
-		}
-
-		if(Input.GetKeyUp(KeyCode.Space))
-			allowToPressSpace = true;
-
 		switch(curArrowStatus)
 		{
 		case Config.Direction.Left:
@@ -105,6 +114,19 @@ public class PhysicalPlayerController : MonoBehaviour {
 			print("Right:"+rb.velocity.x);
 			break;
 		}
+
+		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
+		{
+			isBottom = 0;
+			allowToPressSpace = false;
+			rb.AddForce(Vector2.up * jumpForce);
+			ani.play(Config.CharcterAction.Jump);
+		}
+
+		if(Input.GetKeyUp(KeyCode.Space))
+			allowToPressSpace = true;
+
+		jumpHandler();
 	}
 
 	void onBottom()
@@ -130,15 +152,36 @@ public class PhysicalPlayerController : MonoBehaviour {
 			}
 			ani.play(Config.CharcterAction.Walk);
 		}
-//		rb.constraints = RigidbodyConstraints2D.FreezePosition;
-//		StartCoroutine(unFreezePosition());
 	}
 
-	WaitForEndOfFrame nextFrame = new WaitForEndOfFrame();
-	IEnumerator unFreezePosition()
+	private void autoJumpHandler()
 	{
-		yield return nextFrame;
-		rb.constraints = RigidbodyConstraints2D.FreezePositionX;
+		if(isBottom > 0)
+		{
+			allowToPressSpace = false;
+			isBottom = 0;
+			rb.AddForce(Vector2.up * jumpForce);
+			ani.play(Config.CharcterAction.Jump);
+		}
+
+		if(Input.GetKeyUp(KeyCode.Space))
+			allowToPressSpace = true;
+	}
+
+	private void spaceJumpHandler()
+	{
+		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
+		{
+			isBottom = 0;
+			allowToPressSpace = false;
+			rb.AddForce(Vector2.up * jumpForce);
+			ani.play(Config.CharcterAction.Jump);
+		}
+
+		if(Input.GetKeyUp(KeyCode.Space))
+			allowToPressSpace = true;
+
+
 	}
 
 	public void OnCollisionEnter2D(Collision2D coll)

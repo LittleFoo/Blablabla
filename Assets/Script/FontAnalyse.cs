@@ -9,6 +9,7 @@ using System.Reflection;
 
 public class FontAnalyse : MonoBehaviour {
 	public Dictionary<object, bool> _editorListItemStates = new Dictionary<object, bool>();
+	public int advanceAddition = 0;
 	private Dictionary<int, FontData> _fontDatas = new Dictionary<int, FontData>();
 	public Dictionary<int, FontData> fontDatas
 	{
@@ -111,6 +112,7 @@ public class FontAnalyse : MonoBehaviour {
 			d = fontDataList[i];
 
 			d._actualOffsetY = d.yoffset-_minOffsety;
+			d.actualAdvance = d.xadvance+advanceAddition;
 			if(lineHeight < d._actualOffsetY+ d.height)
 				lineHeight = d._actualOffsetY+ d.height;
 			
@@ -235,6 +237,7 @@ public class FontData
 		get{return _xadvance;}
 		set{_xadvance = value;}
 	}
+	public int actualAdvance;
 	public Sprite spr;
 	public string Name;
 	public int _actualOffsetY;

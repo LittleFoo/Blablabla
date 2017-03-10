@@ -62,7 +62,7 @@ public class CharacterGroup : MonoBehaviour {
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
 				obj.transform.localPosition = new Vector2(x + xOffset, -d._actualOffsetY+yOffset);
-				x += d.xadvance;
+				x += d.actualAdvance;
 			}
 		}
 
@@ -134,7 +134,7 @@ public class CharacterGroup : MonoBehaviour {
 				obj.name = chars[i].ToString();
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
 
-				x += d.xadvance;
+				x += d.actualAdvance;
 				spr.sprite = d.spr;
 
 				cell.tf = obj.transform;
@@ -207,7 +207,7 @@ public class CharacterGroup : MonoBehaviour {
 				obj.name = chars[i].ToString();
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
 
-				x += d.xadvance;
+				x += d.actualAdvance;
 				spr.sprite = d.spr;
 
 				cell.tf = obj.transform;

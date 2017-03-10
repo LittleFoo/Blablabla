@@ -64,6 +64,8 @@ public class FontDataAnalyseInspector : Editor {
 				}
 			}
 		}
+
+		script.advanceAddition = EditorGUILayout.IntField("advanceAddition", script.advanceAddition);
 //
 //		script.matchPoolScale = EditorGUILayout.Toggle("Match Pool Scale", script.matchPoolScale);
 //		script.matchPoolLayer = EditorGUILayout.Toggle("Match Pool Layer", script.matchPoolLayer);

@@ -21,6 +21,6 @@ public class ToHSL : MonoBehaviour{
 		_val = minVal;
 		if(loop <= 0)
 			loop = int.MaxValue;
-		DOTween.To(()=>val, x =>{_val = x; _m.SetInt( "_Hue", (int)_val );}, maxVal, duration).SetLoops(loop, LoopType.Yoyo);
+		DOTween.To(()=>val, x =>{_val = x; _m.SetFloat( "_Hue", _val );}, maxVal, duration).SetLoops(loop, LoopType.Yoyo);
 	}
 }
