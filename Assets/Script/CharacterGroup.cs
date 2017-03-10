@@ -127,6 +127,7 @@ public class CharacterGroup : MonoBehaviour {
 				}
 
 				obj.tag = Config.TAG_CHAR;
+				obj.gameObject.layer = transform.gameObject.layer;
 				spr = obj.GetComponent<SpriteRenderer>();
 				spr.color = color;
 				spr.sortingOrder = 1;
