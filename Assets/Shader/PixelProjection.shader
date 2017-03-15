@@ -8,6 +8,8 @@ Shader "Custom/PixelProjection" {
          _speed ("speed", range (0,50)) = 1//表示水波的扭曲强度   
          _Indentity ("Indentity", range (0,0.01)) = 0.1//表示水波的扭曲强度   
           _pixelGroup("pixelGroup", range (0,0.1)) =0.05//表示水波的扭曲强度  
+          _fadeBegin("fadeBegin", range (0,1)) =0.4//表示水波的扭曲强度  
+           _fadeEnd("fadeEnd", range (0,1)) =0.5//表示水波的扭曲强度  
     }
     SubShader {
         Tags {
@@ -60,6 +62,8 @@ Shader "Custom/PixelProjection" {
 			half _speed;  
              half _Indentity;
             half _pixelGroup;
+            float _fadeBegin;
+            float _fadeEnd;
             VertexOutput vert (VertexInput v) {
                 VertexOutput o = (VertexOutput)0;
                 o.uv0 = v.texcoord0;
@@ -73,8 +77,13 @@ Shader "Custom/PixelProjection" {
 	             float ss = floor(ruv.y/_pixelGroup);//[0-50]
 	       			ruv.x += (cos((_Time.x*_speed+ss*10)))*_Indentity;
 	              float4 _ReflectionTex_var = tex2D(_ReflectionTex,ruv);
-				_ReflectionTex_var = (_ReflectionTex_var + _MainColor)*_saturation;
-				_ReflectionTex_var.a = _MainColor.a;
+				_ReflectionTex_var = (_ReflectionTex_var * _MainColor);
+				if(ruv.y > _fadeEnd || ruv.y < _fadeBegin)
+					_ReflectionTex_var.a = 0;
+				else 
+					_ReflectionTex_var.a = _MainColor.a*(ruv.y - _fadeBegin)/(_fadeEnd - _fadeBegin);
+			
+
 // 					_ReflectionTex_var.r = 0;
 // 					_ReflectionTex_var.g = 0;
 // 					_ReflectionTex_var.b = frac(_Time.x);
