@@ -20,9 +20,20 @@ public class GlobalController : MonoBehaviour {
 
 
 	void Awake () {
-		if(_instance != null) throw new System.Exception("GlobalController is a singleton");
+		if(_instance != null) 
+			throw new System.Exception("GlobalController is a singleton");
+		
 		_instance = this;
+
 		Application.targetFrameRate = 60;
+
+		setting.init();
+
+		float screenWidth = Mathf.Ceil( setting.gridSize*setting.gridNum/9.0f*16);
+		screenWidth = Mathf.Ceil(screenWidth*1.0f/16)*16;
+		float screenHeight = screenWidth/16*9;
+		Camera.main.orthographicSize = screenHeight*0.5f;
+		print("screenW:"+screenWidth.ToString() +",screenHeight:"+screenHeight.ToString());
 //		CharacterCell.initHandler();
 	}
 	

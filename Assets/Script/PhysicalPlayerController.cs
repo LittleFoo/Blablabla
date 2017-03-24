@@ -5,11 +5,10 @@ using DG.Tweening;
 public class PhysicalPlayerController : MonoBehaviour {
 	public Rigidbody2D rb;
 	public CharacterAnimation ani;
-	public int isBottom;
-	public float moveForce;
-	public float jumpForce;
-	public float hitForce;
 	public Transform tf;
+	public int isBottom;
+
+
 	public bool _autoJump;
 	public bool autoJump
 	{
@@ -28,11 +27,19 @@ public class PhysicalPlayerController : MonoBehaviour {
 	private float initScaleX;
 	private float height;
 	private bool isDead = false;
+	private float _upSpeed;
+	private float _moveSpeed;
+
 	private System.Action jumpHandler;
 
 
 	void Start()
 	{
+		Setting s = GlobalController.instance.setting;
+		rb.gravityScale = s.playerG/s.g;
+		_upSpeed = s.smallUpSpeed;
+		_moveSpeed = s.moveSpeed;
+
 		ani.play(Config.CharcterAction.Jump);
 		initScaleX = transform.lossyScale.x;
 		tf = transform;
@@ -51,27 +58,30 @@ public class PhysicalPlayerController : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.RightArrow))
 		{
 			arrowStatus =  Config.Direction.Right;
+			rb.velocity = new Vector2(_moveSpeed, rb.velocity.y);
+			if(tf.lossyScale.x != initScaleX)
+				tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 			if(isBottom > 0)
 			{
 				if(curArrowStatus != arrowStatus)
 				{
 					ani.play(Config.CharcterAction.Walk);
 					curArrowStatus = arrowStatus;
-					if(tf.lossyScale.x != initScaleX)
-						tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
+
 				}
 			}
 		}
 		else if(Input.GetKeyDown(KeyCode.LeftArrow))
 		{
 			arrowStatus =  Config.Direction.Left;
+			rb.velocity = new Vector2(-_moveSpeed, rb.velocity.y);
+			if(tf.lossyScale.x == initScaleX)
+			tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 			if(isBottom > 0)
 			{
 				if(curArrowStatus != arrowStatus)
 				{
 					curArrowStatus = arrowStatus;
-					if(tf.lossyScale.x == initScaleX)
-						tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 					ani.play(Config.CharcterAction.Walk);
 				}
 			}
@@ -99,27 +109,11 @@ public class PhysicalPlayerController : MonoBehaviour {
 			}
 		}
 
-		switch(curArrowStatus)
-		{
-		case Config.Direction.Left:
-
-			if(rb.velocity.x >= -moveForce)
-				rb.AddForce(Vector2.left * moveForce);
-			print("left:"+rb.velocity.x);
-			break;
-
-		case Config.Direction.Right:
-			if(rb.velocity.x <= moveForce)
-				rb.AddForce(Vector2.right * moveForce);
-			print("Right:"+rb.velocity.x);
-			break;
-		}
-
 		if(allowToPressSpace && Input.GetKeyDown(KeyCode.Space) && isBottom > 0)
 		{
 			isBottom = 0;
 			allowToPressSpace = false;
-			rb.AddForce(Vector2.up * jumpForce);
+			rb.velocity = new Vector2(rb.velocity.x, _upSpeed);
 			ani.play(Config.CharcterAction.Jump);
 		}
 
@@ -160,7 +154,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 		{
 			allowToPressSpace = false;
 			isBottom = 0;
-			rb.AddForce(Vector2.up * jumpForce);
+			rb.velocity = new Vector2(rb.velocity.x, _upSpeed);
 			ani.play(Config.CharcterAction.Jump);
 		}
 
@@ -174,7 +168,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 		{
 			isBottom = 0;
 			allowToPressSpace = false;
-			rb.AddForce(Vector2.up * jumpForce);
+			rb.velocity = new Vector2(rb.velocity.x, _upSpeed);
 			ani.play(Config.CharcterAction.Jump);
 		}
 
@@ -202,7 +196,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 			}
 			else if(delta > height)
 			{
-				rb.AddForce(Vector2.down * hitForce);
+				rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
 				coll.transform.GetComponent<CharacterCell>().pushUp();
 			}
 			break;
