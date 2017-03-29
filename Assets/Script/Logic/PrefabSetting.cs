@@ -17,4 +17,6 @@ public class PrefabSetting : MonoBehaviour {
 	{
 		DontDestroyOnLoad(this);
 	}
+
+
 }

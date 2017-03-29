@@ -31,7 +31,7 @@ public class CharacterCell : MonoBehaviour
 	{
 		if (_curTween != null && _curTween.IsPlaying ())
 			_curTween.Complete ();
-		tf.DOLocalMoveY (tf.localPosition.y + 5, 0.1f).SetLoops (2, LoopType.Yoyo);
+		_curTween = tf.DOLocalMoveY (tf.localPosition.y + 5, 0.1f).SetLoops (2, LoopType.Yoyo);
 	}
 
 	public static void initHandler()
