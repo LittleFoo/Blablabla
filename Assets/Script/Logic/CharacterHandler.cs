@@ -31,14 +31,12 @@ public class CharacterHandler : MonoBehaviour {
 	public static void angleBracketLeftTrigger (PhysicalPlayerController pp, CharacterCell charTf)
 	{
 		charTf.tf.DOLocalMoveY (charTf.tf.localPosition.y - 5, 0.1f).SetLoops (2, LoopType.Yoyo);
-		Vector2 vec = GlobalController.instance.setting.angleBlanketReboundParam;
-		pp.Rebound (new Vector2 (-vec.x, vec.y));
+		pp.Rebound (Config.Direction.Left);
 	}
 
 	public static void angleBracketRightTrigger (PhysicalPlayerController pp, CharacterCell charTf)
 	{
 		charTf.tf.DOLocalMoveY (charTf.tf.localPosition.y - 5, 0.1f).SetLoops (2, LoopType.Yoyo);
-		Vector2 vec = GlobalController.instance.setting.angleBlanketReboundParam;
-		pp.Rebound (new Vector2 (vec.x, vec.y));
+		pp.Rebound (Config.Direction.Right);
 	}
 }

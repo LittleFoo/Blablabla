@@ -8,7 +8,6 @@ public class PhysicalPlayerController : MonoBehaviour {
 	public Transform tf;
 	public int isBottom;
 
-
 	public bool _autoJump;
 	public bool autoJump
 	{
@@ -29,7 +28,9 @@ public class PhysicalPlayerController : MonoBehaviour {
 	private float _upSpeed;
 	private float _moveSpeed;
 	private int _jumpCount = 0;
-	private bool _restrictDirection;
+	private int _restrictDirection;
+	private bool _lockPosture;
+	private float _idleTime;
 
 	private System.Action jumpHandler;
 
@@ -37,6 +38,12 @@ public class PhysicalPlayerController : MonoBehaviour {
 	{
 		tf = transform;
 
+		if(ani != null)
+		{
+			CharacterAnimation newAni = tf.gameObject.AddComponent<CharacterAnimation>();
+			newAni.copy(ani);
+			ani = newAni;
+		}
 		Setting s = GlobalController.instance.setting;
 		rb.gravityScale = s.playerG/s.g;
 		_upSpeed = s.smallUpSpeed;
@@ -47,7 +54,10 @@ public class PhysicalPlayerController : MonoBehaviour {
 		col.offset = new Vector2(0,s.gridSize*0.5f);
 		height = col.size.y*0.9f;
 
-		ani.play(Config.CharcterAction.Jump);
+		reboundReleaseDelay = new WaitForSeconds(s.reboundProtectTime);
+
+		ani.doJump();
+		_lockPosture = true;
 		initScaleX = transform.lossyScale.x;
 
 		if(_autoJump)
@@ -60,29 +70,36 @@ public class PhysicalPlayerController : MonoBehaviour {
 	{
 		if(isDead)
 			return;
-		
+
+		bool arrowChange = false;
 		if(Input.GetKeyDown(KeyCode.RightArrow))
 		{
 			_arrowStatus =  Config.Direction.Right;
+			arrowChange = true;
 		}
 		else if(Input.GetKeyDown(KeyCode.LeftArrow))
 		{
 			_arrowStatus =  Config.Direction.Left;
+			arrowChange = true;
 		}
 
 		if(Input.GetKeyUp(KeyCode.RightArrow) && _arrowStatus ==  Config.Direction.Right)
 		{
 			_arrowStatus =  Config.Direction.None;
+			arrowChange = true;
 		}
 
 		if(Input.GetKeyUp(KeyCode.LeftArrow) && _arrowStatus ==  Config.Direction.Left)
 		{
 			_arrowStatus =  Config.Direction.None;
+			arrowChange = true;
 		}
 
 		jumpHandler();
 
-		if((_restrictDirection&&_playerDirection == Config.Direction.None) || !_restrictDirection)
+	
+		Config.Direction lastPlayerDirection = _playerDirection;
+		if(_restrictDirection == 0 && arrowChange)
 			_playerDirection = _arrowStatus;
 			
 		switch(_playerDirection)
@@ -90,24 +107,38 @@ public class PhysicalPlayerController : MonoBehaviour {
 		case Config.Direction.None:
 			rb.velocity = new Vector2(0, rb.velocity.y);
 			if(isBottom > 0)
-				ani.play(Config.CharcterAction.Idle);
+			{
+				if(lastPlayerDirection != _playerDirection && !_lockPosture)
+					ani.play(Config.CharcterAction.Idle);
+				_idleTime += Time.deltaTime;
+			}
+			else
+				_idleTime = 0;
 			break;
 
 		case Config.Direction.Left:
 			rb.velocity = new Vector2(-_moveSpeed, rb.velocity.y);
-			if(isBottom > 0)
+			if(!_lockPosture  && lastPlayerDirection != _playerDirection)
 				ani.play(Config.CharcterAction.Walk);
 			if(tf.lossyScale.x == initScaleX)
 				tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
+			_idleTime = 0;
 			break;
 
 		case Config.Direction.Right:
 			rb.velocity = new Vector2(_moveSpeed, rb.velocity.y);
-			if(isBottom > 0)
+			if(!_lockPosture && lastPlayerDirection != _playerDirection)
 				ani.play(Config.CharcterAction.Walk);
 			if(tf.lossyScale.x != initScaleX)
 				tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
+			_idleTime = 0;
 			break;
+		}
+
+		if(_idleTime > 3)
+		{
+			ani.doRandomIdle();
+			_idleTime = -2;
 		}
 	}
 
@@ -171,28 +202,42 @@ public class PhysicalPlayerController : MonoBehaviour {
 	#region public call
 
 	//character like > < will rebound player;
-	public void Rebound(Vector2 param)
+	public void Rebound(Config.Direction dir)
 	{
 		isBottom = 0;
-		_arrowStatus = Config.Direction.None;
-		rb.velocity = param;
-
+		_playerDirection = dir;
+		rb.velocity = GlobalController.instance.setting.angleBlanketReboundParam;
+		_moveSpeed = GlobalController.instance.setting.angleBlanketReboundParam.x;
 		ani.play(Config.CharcterAction.Jump);
+		_restrictDirection ++;
+		releaseAfterReboundRoutine = StartCoroutine(releaseAfterRebound());
+	}
+
+	WaitForSeconds reboundReleaseDelay;
+	Coroutine releaseAfterReboundRoutine;
+	IEnumerator releaseAfterRebound()
+	{
+		yield return reboundReleaseDelay ;
+		_restrictDirection --;
 	}
 
 	//lock players move direction and let them move faster
 	public void onIce()
 	{
-		_restrictDirection = true;
+		_restrictDirection++;
+		if(_playerDirection == Config.Direction.None)
+			_playerDirection = Config.Direction.Right;
 		_moveSpeed = GlobalController.instance.setting.moveSpeed*2;
-
+		ani.play(Config.CharcterAction.Crash);
+		_lockPosture = true;
 	}
 
 	//unlock players move direction
 	public void leaveIce()
 	{
-		_restrictDirection = false;
+		_restrictDirection--;
 		_moveSpeed = GlobalController.instance.setting.moveSpeed*1;
+		_lockPosture = false;
 	}
 
 	#endregion
@@ -218,7 +263,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 			_jumpCount ++;
 			isBottom = 0;
 			rb.velocity = new Vector2(rb.velocity.x, _upSpeed);
-			ani.play(Config.CharcterAction.Jump);
+			ani.doJump();
 		}
 
 		if(Input.GetKeyUp(KeyCode.Space))
@@ -228,29 +273,22 @@ public class PhysicalPlayerController : MonoBehaviour {
 
 	void onBottom()
 	{
+		_lockPosture = false;
 		isBottom = 1;
 		_jumpCount = 0;
+
+		//correct some attribute. like adjust direction after rebound
+		_playerDirection = _arrowStatus;
+
 		if(_arrowStatus == Config.Direction.None)
 		{
 			ani.play(Config.CharcterAction.Idle);
-			rb.velocity = Vector2.zero;
 		}
 		else
 		{
-			if(_arrowStatus == Config.Direction.Left)
-			{
-				rb.velocity = new Vector2(-_moveSpeed, rb.velocity.y);
-				if(tf.lossyScale.x == initScaleX)
-					tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
-			}
-			else
-			{
-				rb.velocity = new Vector2(_moveSpeed, rb.velocity.y);
-				if(tf.lossyScale.x != initScaleX)
-					tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
-			}
 			ani.play(Config.CharcterAction.Walk);
 		}
+		rb.velocity = new Vector2(rb.velocity.x, 0);
 	}
 
 }

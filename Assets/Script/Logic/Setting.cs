@@ -5,12 +5,13 @@ public class Setting : MonoBehaviour {
 	public int g = 10;
 	public int gridSize = 10;
 	public int gridNum = 11;
-	public Vector2 angleBlanketReboundParam;
+	public Vector2 roleColliderSize = new Vector2(10,10);
 	public float jumpGridNum = 2;
-	public float bigJumpGridNum = 3;
 	public float jumpTime = 0.5f;
 	public float moveSpeed = 100;
-	public float jumpDelay = 0.05f;
+
+	public Vector2 angleBlanketReboundParam;
+	public float reboundProtectTime = 0.3f;
 	private float _bigJumpTime;
 	public float bigJumpTime
 	{

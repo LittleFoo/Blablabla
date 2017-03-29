@@ -13,8 +13,6 @@ public class CharacterCell : MonoBehaviour
 	public BoxCollider2D[] colList;
 	private System.Action<PhysicalPlayerController, CharacterCell> _onPlayerEnter;
 
-	private static Dictionary< int, System.Action<PhysicalPlayerController, CharacterCell> > handlers;
-
 	public void Awake ()
 	{
 		tf = transform;
@@ -34,15 +32,7 @@ public class CharacterCell : MonoBehaviour
 		_curTween = tf.DOLocalMoveY (tf.localPosition.y + 5, 0.1f).SetLoops (2, LoopType.Yoyo);
 	}
 
-	public static void initHandler()
-	{
-		if(handlers != null)
-			return;
 
-		handlers = new Dictionary<int, System.Action<PhysicalPlayerController, CharacterCell>>();
-		handlers.Add(60, angleBracketLeftTrigger);
-		handlers.Add(62, angleBracketRightTrigger);
-	}
 
 
 	public void onPlayerLand(PhysicalPlayerController pp)
@@ -52,17 +42,5 @@ public class CharacterCell : MonoBehaviour
 			_onPlayerEnter(pp, this);
 	}
 
-	public static void angleBracketLeftTrigger (PhysicalPlayerController pp, CharacterCell charTf)
-	{
-		charTf.tf.DOLocalMoveY (charTf.tf.localPosition.y - 5, 0.1f).SetLoops (2, LoopType.Yoyo);
-		Vector2 vec = GlobalController.instance.setting.angleBlanketReboundParam;
-		pp.Rebound (new Vector2 (-vec.x, vec.y));
-	}
 
-	public static void angleBracketRightTrigger (PhysicalPlayerController pp, CharacterCell charTf)
-	{
-		charTf.tf.DOLocalMoveY (charTf.tf.localPosition.y - 5, 0.1f).SetLoops (2, LoopType.Yoyo);
-		Vector2 vec = GlobalController.instance.setting.angleBlanketReboundParam;
-		pp.Rebound (new Vector2 (vec.x, vec.y));
-	}
 }
