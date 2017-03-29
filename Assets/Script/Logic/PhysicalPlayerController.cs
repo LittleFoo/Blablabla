@@ -7,7 +7,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 	public CharacterAnimation ani;
 	public Transform tf;
 	public int isBottom;
-
+	public CameraScroll cam;
 	public bool _autoJump;
 	public bool autoJump
 	{
@@ -64,8 +64,13 @@ public class PhysicalPlayerController : MonoBehaviour {
 			jumpHandler = autoJumpHandler;
 		else
 			jumpHandler = spaceJumpHandler;
+
+		_lastPostion = tf.position;
+
+		cam.setPos(tf);
 	}
 
+	private Vector3 _lastPostion;
 	void Update()
 	{
 		if(isDead)
@@ -111,9 +116,13 @@ public class PhysicalPlayerController : MonoBehaviour {
 				if(lastPlayerDirection != _playerDirection && !_lockPosture)
 					ani.play(Config.CharcterAction.Idle);
 				_idleTime += Time.deltaTime;
+				cam.correct(tf);
 			}
 			else
+			{
 				_idleTime = 0;
+				cam.notice(tf.position - _lastPostion, tf, tf.localScale.x);
+			}
 			break;
 
 		case Config.Direction.Left:
@@ -123,6 +132,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 			if(tf.lossyScale.x == initScaleX)
 				tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 			_idleTime = 0;
+			cam.notice(tf.position - _lastPostion, tf, tf.localScale.x);
 			break;
 
 		case Config.Direction.Right:
@@ -132,6 +142,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 			if(tf.lossyScale.x != initScaleX)
 				tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 			_idleTime = 0;
+			cam.notice(tf.position - _lastPostion, tf, tf.localScale.x);
 			break;
 		}
 
@@ -140,6 +151,8 @@ public class PhysicalPlayerController : MonoBehaviour {
 			ani.doRandomIdle();
 			_idleTime = -2;
 		}
+
+		_lastPostion = tf.position;
 	}
 
 	public void OnCollisionEnter2D(Collision2D coll)
@@ -283,6 +296,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 		if(_arrowStatus == Config.Direction.None)
 		{
 			ani.play(Config.CharcterAction.Idle);
+			cam.correct(tf);
 		}
 		else
 		{
