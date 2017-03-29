@@ -43,4 +43,6 @@ public class Setting : MonoBehaviour {
 		_bigJumpTime = Mathf.Sqrt(jumpGridNum*gridSize*2/_playerG);
 		_bigUpSpeed =_playerG*bigJumpTime;
 	}
+
+
 }
