@@ -1,5 +1,7 @@
 /Library
 /obj
+/IgnoreObj
+/GeometryFXParticles
 Assembly-CSharp.csproj
 Assembly-CSharp-Editor.csproj
 BlablablaGit.sln
