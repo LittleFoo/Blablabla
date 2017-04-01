@@ -37,7 +37,7 @@ public class PhysicalPlayerController : MonoBehaviour {
 	void Start()
 	{
 		tf = transform;
-
+		cam = Camera.main.GetComponent<CameraScroll>();
 		if(ani != null)
 		{
 			CharacterAnimation newAni = tf.gameObject.AddComponent<CharacterAnimation>();

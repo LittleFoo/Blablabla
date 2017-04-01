@@ -183,6 +183,8 @@ public class CharactersActionInspector : Editor {
 					break;
 				}
 				PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("duration"));
+				if(item.loop > 1 || item.loop < 0)
+					PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("pauseTime"));
 				GUILayout.Space(2);
 			}
 

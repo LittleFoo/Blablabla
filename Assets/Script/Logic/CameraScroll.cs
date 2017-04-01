@@ -6,7 +6,7 @@ public class CameraScroll : MonoBehaviour {
 
 	public Transform tf;
 	private Tweener _curTween;
-	void Start()
+	void Awake()
 	{
 		tf = transform;
 	}
