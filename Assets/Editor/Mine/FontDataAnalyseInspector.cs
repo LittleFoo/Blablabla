@@ -66,6 +66,7 @@ public class FontDataAnalyseInspector : Editor {
 		}
 
 		script.advanceAddition = EditorGUILayout.IntField("advanceAddition", script.advanceAddition);
+		script.pixelPerUnit = EditorGUILayout.FloatField("pixelPerUnit", script.pixelPerUnit);
 //
 //		script.matchPoolScale = EditorGUILayout.Toggle("Match Pool Scale", script.matchPoolScale);
 //		script.matchPoolLayer = EditorGUILayout.Toggle("Match Pool Layer", script.matchPoolLayer);
@@ -82,7 +83,14 @@ public class FontDataAnalyseInspector : Editor {
 		if (GUILayout.Button(new GUIContent("Generate", "Click to generate data"), EditorStyles.toolbarButton))
 		{
 			if(script.ImgPath != null && script.DataPath != null)
-			script.slice(script.ImgPath, script.DataPath);
+			{
+				script.slice(script.ImgPath, script.DataPath);
+				CharacterGroup[] groups = FindObjectsOfType<CharacterGroup>();
+				for(int i = 0; i < groups.Length; i++)
+				{
+					groups[i].setTextInEditor(false);
+				}
+			}
 		}
 
 		if (GUILayout.Button(new GUIContent("Clear", "Click to generate data"), EditorStyles.toolbarButton))

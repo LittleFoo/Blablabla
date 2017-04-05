@@ -10,6 +10,7 @@ using System.Reflection;
 public class FontAnalyse : MonoBehaviour {
 	public Dictionary<object, bool> _editorListItemStates = new Dictionary<object, bool>();
 	public int advanceAddition = 0;
+	public float pixelPerUnit = 1;
 	private Dictionary<int, FontData> _fontDatas = new Dictionary<int, FontData>();
 	public Dictionary<int, FontData> fontDatas
 	{
@@ -35,7 +36,7 @@ public class FontAnalyse : MonoBehaviour {
 	public Texture2D texture;
 	private int _textHeight;
 	private int _minOffsety = 999;
-	public int lineHeight;
+	public float lineHeight;
 	private string[] stringSeparators = new string[] { "\n" };
 
 	void Awake () {
@@ -112,11 +113,11 @@ public class FontAnalyse : MonoBehaviour {
 			d = fontDataList[i];
 
 			d._actualOffsetY = d.yoffset-_minOffsety;
-			d.actualAdvance = d.xadvance+advanceAddition;
+			d.actualAdvance = ((d.xadvance+advanceAddition)/pixelPerUnit);
 			if(lineHeight < d._actualOffsetY+ d.height)
 				lineHeight = d._actualOffsetY+ d.height;
 			
-			d.spr = Sprite.Create(texture, new Rect(d.x, (_textHeight - d.y - d.height), d.width, d.height), new Vector2(0, 1), 1);
+			d.spr = Sprite.Create(texture, new Rect(d.x, (_textHeight - d.y - d.height), d.width, d.height), new Vector2(0, 1), pixelPerUnit);
 
 			go = new GameObject(d.id.ToString());
 			go.AddComponent<SpriteRenderer>().sprite = d.spr;
@@ -126,12 +127,13 @@ public class FontAnalyse : MonoBehaviour {
 			subName = subName.Substring(subName.IndexOf("Assets"));
 			d.prefab = go;//PrefabUtility.CreatePrefab(subName, go);
 			go.transform.SetParent(transform);
-			go.transform.localPosition = new Vector3(37*(i%20), 37*(int)(i/20), 0);
+			go.transform.localPosition = new Vector3
+				(37*(i%20), 37*(int)(i/20), 0);
 			_fontDatas.Add(d.id, d);
 //			print(d.prefab.GetComponent<SpriteRenderer>().sprite);
 //			GameObject.DestroyImmediate(go);
 		}
-
+		lineHeight = (lineHeight/pixelPerUnit);
 	}
 
 	public void createSprite()
@@ -237,7 +239,7 @@ public class FontData
 		get{return _xadvance;}
 		set{_xadvance = value;}
 	}
-	public int actualAdvance;
+	public float actualAdvance;
 	public Sprite spr;
 	public string Name;
 	public int _actualOffsetY;

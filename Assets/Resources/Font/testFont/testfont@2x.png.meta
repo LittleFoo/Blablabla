@@ -144,7 +144,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 1
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
@@ -1162,14 +1162,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: -12, y: 16}
-        - {x: -17, y: 5}
-        - {x: -17, y: -8}
-        - {x: -13, y: -16}
-        - {x: 14, y: -16}
-        - {x: 17, y: -13}
-        - {x: 17, y: 11}
-        - {x: 12, y: 16}
+      - - {x: -11, y: 16}
+        - {x: -17, y: 14}
+        - {x: -17, y: -14}
+        - {x: -15, y: -16}
+        - {x: 17, y: -16}
+        - {x: 17, y: 13}
+        - {x: 14, y: 16}
     - name: testfont@2x_92
       rect:
         serializedVersion: 2

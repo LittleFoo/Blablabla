@@ -12,7 +12,7 @@ public class PrefabSetting : MonoBehaviour {
 	public GameObject charPrefab0;
 	public GameObject charPrefab1;
 	public GameObject charPrefab2;
-
+	public Texture2D scrollUnitTexture;
 	public void Awake()
 	{
 		DontDestroyOnLoad(this);
