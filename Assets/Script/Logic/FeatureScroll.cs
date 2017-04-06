@@ -6,8 +6,8 @@ public class FeatureScroll : MonoBehaviour
 {
 	public float scrollSpeed;
 	public Transform tf;
-	private float speed = 1;
-	//	public int isClockWise = 0;
+	private float speed = 12;
+		private int isClockWise = 1;
 	public Transform root;
 	public BoxCollider2D col;
 	[SerializeField]
@@ -71,7 +71,7 @@ public class FeatureScroll : MonoBehaviour
 				idx = idx%units.Count;
 			units[idx].transform.localPosition -= new Vector3(0, speed * Time.deltaTime);
 
-			idx = idx + _xNum + _yNum+1;
+			idx = idx + _xNum + _yNum;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
 			units[idx].transform.localPosition += new Vector3(0, speed * Time.deltaTime);
@@ -79,17 +79,23 @@ public class FeatureScroll : MonoBehaviour
 
 		if(!isRotating && units[idx].transform.localPosition.y >= flagY)
 		{
-			startIdx = (startIdx+1)%units.Count;
+			int idx1 = (idx + _xNum)%units.Count;
+			int idx2 = (idx1 + _yNum)%units.Count;
+			int idx3 = (idx2 + _xNum)%units.Count;
 			isRotating = true;
 			Transform rotateTf = units[idx].transform;
-			rotateTf.DOLocalRotate(new Vector3(0, 0, 360), _rotationTime).OnComplete(()=>{
-				isRotating = false;});
-//			idx = (idx + _xNum)%units.Count;
-//			units[idx].transform.DOLocalRotate(new Vector3(0, 0, -90), _rotationTime);
-//			idx = (idx + _yNum);
-//			units[idx%units.Count].transform.DOLocalRotate(new Vector3(0, 0, -180), _rotationTime);
-//			idx = idx + _xNum;
-//			units[idx].transform.DOLocalRotate(new Vector3(0, 0, 90), _rotationTime);
+			rotateTf.DOLocalRotate(new Vector3(0, 0, units[idx].transform.localRotation.eulerAngles.z - 90), _rotationTime).OnComplete(()=>{
+				startIdx = (startIdx+units.Count-1)%units.Count;
+				isRotating = false;
+				rotateTf.localPosition = units[(idx + 1)%units.Count].transform.localPosition - new Vector3(unitWidth+gap, 0, 0);
+				units[idx1].transform.localPosition = units[(idx1 + 1)%units.Count].transform.localPosition + new Vector3(0, unitWidth+gap, 0);
+				units[idx2].transform.localPosition = units[(idx2 + 1)%units.Count].transform.localPosition + new Vector3(unitWidth+gap, 0, 0);
+				units[idx3].transform.localPosition = units[(idx3 + 1)%units.Count].transform.localPosition - new Vector3(0, unitWidth+gap, 0);
+			});
+
+			units[idx1].transform.DOLocalRotate(new Vector3(0, 0, units[idx1].transform.localRotation.eulerAngles.z - 90), _rotationTime);
+			units[idx2].transform.DOLocalRotate(new Vector3(0, 0, units[idx2].transform.localRotation.eulerAngles.z - 90), _rotationTime);
+			units[idx3].transform.DOLocalRotate(new Vector3(0, 0, units[idx3].transform.localRotation.eulerAngles.z - 90), _rotationTime);
 		}
 	}
 
@@ -105,7 +111,14 @@ public class FeatureScroll : MonoBehaviour
 			col = root.gameObject.AddComponent<BoxCollider2D>();
 		}
 
-		_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, 7, 4), new Vector2(0.5f, 0.5f), 1);
+		if(_spr)
+			DestroyImmediate(_spr);
+//		if(isClockWise == 0)
+//			_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(1, 0), 1);
+//		else
+//			_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(0, 0), 1);
+		_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(0.5f, 0.5f), 1);
+
 		_yNum = (int)Mathf.Ceil((cg.analyse.lineHeight+edge*2 + unitHeight)/(unitWidth+gap));
 		_xNum = (int)Mathf.Ceil((cg.textWidth+edge*2+unitHeight)/(unitWidth+gap));
 

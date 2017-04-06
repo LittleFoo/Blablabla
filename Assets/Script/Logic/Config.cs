@@ -12,6 +12,7 @@ public class Config {
 	public const string TAG_GROUP = "CharacterGroup";
 	public const string TAG_CHAR = "Character";
 	public const string TAG_DANGER = "Danger";
+	public const string TAG_SCROLL = "Scroll";
 
 	public static Color BLUE = new Color(0, 239/255.0f, 221/255.0f);
 	public static Color ORANGE = new Color(248/255.0f, 183/255.0f, 3/255.0f);
