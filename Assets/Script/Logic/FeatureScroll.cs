@@ -4,10 +4,10 @@ using DG.Tweening;
 
 public class FeatureScroll : MonoBehaviour
 {
-	public float scrollSpeed;
+	public bool isClockWise = false;
 	public Transform tf;
-	private float speed = 12;
-		private int isClockWise = 1;
+	public float speed = 3;
+
 	public Transform root;
 	public BoxCollider2D col;
 	[SerializeField]
@@ -26,8 +26,9 @@ public class FeatureScroll : MonoBehaviour
 	private float flagY = 0;
 	private Sprite _spr;
 	private float _rotationTime;
-
+	private float _dis;
 	private bool isRotating = false;
+	private System.Action curUpdate;
 	public static int unitWidth = 7;
 	public static int unitHeight = 4;
 	public static int gap = 2;
@@ -35,16 +36,83 @@ public class FeatureScroll : MonoBehaviour
 	// Use this for initialization
 	void Awake()
 	{
-		_rotationTime = (unitWidth*0.5f+unitHeight*0.5f+gap)/speed;
-
-//		if(isClockWise == 0)
-//			_spr.pivot = new Vector2(1, 0);
-//		else
-//			_spr.pivot = new Vector2(0, 0);
+		_dis = unitWidth + gap;
+		_rotationTime = _dis/speed;
+		if(!isClockWise)
+			curUpdate = antiClockUpdate;
+		else
+			curUpdate = clockWiseUpdate;
 	}
 
-
 	void Update()
+	{
+		curUpdate();
+	}
+
+	void antiClockUpdate()
+	{
+		int count, idx = 0;
+
+		count = startIdx + _xNum;
+		for(int i = startIdx; i < count; i++)
+		{
+			idx = i;
+			if(idx >= units.Count)
+				idx = idx%units.Count;
+			units[idx].transform.localPosition -= new Vector3(speed * Time.deltaTime, 0, 0);
+
+
+			idx = idx + _xNum + _yNum;
+			if(idx >= units.Count)
+				idx = idx%units.Count;
+			units[idx].transform.localPosition += new Vector3(speed * Time.deltaTime, 0);
+		}
+
+		count = startIdx + _xNum + _yNum;
+		for(int i = startIdx + _xNum ; i < count; i++)
+		{
+			idx = i;
+			if(idx >= units.Count)
+				idx = idx%units.Count;
+			units[idx].transform.localPosition += new Vector3(0, speed * Time.deltaTime);
+
+			idx = idx + _xNum + _yNum;
+			if(idx >= units.Count)
+				idx = idx%units.Count;
+			units[idx].transform.localPosition -= new Vector3(0, speed * Time.deltaTime);
+		}
+
+		idx = startIdx;
+		if(!isRotating && units[idx].transform.localPosition.y >= flagY)
+		{
+			int addition = units.Count -1;
+			int idx1 = (idx + _xNum)%units.Count;
+			int idx2 = (idx1 + _yNum)%units.Count;
+			int idx3 = (idx2 + _xNum)%units.Count;
+			isRotating = true;
+			units[idx].transform.DOLocalRotate(new Vector3(0, 0, units[idx].transform.localRotation.eulerAngles.z + 90), _rotationTime).OnComplete(()=>{
+				startIdx = (startIdx+units.Count+1)%units.Count;
+				isRotating = false;
+				units[idx].transform.localPosition = units[(idx + addition)%units.Count].transform.localPosition + new Vector3(0, _dis, 0);
+				units[idx1].transform.localPosition = units[(idx1 + addition)%units.Count].transform.localPosition + new Vector3(_dis, 0, 0);
+				units[idx2].transform.localPosition = units[(idx2 + addition)%units.Count].transform.localPosition - new Vector3(0, _dis, 0);
+				units[idx3].transform.localPosition = units[(idx3 + addition)%units.Count].transform.localPosition - new Vector3(_dis, 0, 0);
+			});
+
+			units[idx].transform.DOLocalMoveY(units[idx].transform.localPosition.y - gap, _rotationTime).SetEase(Ease.OutQuad);
+
+			units[idx1].transform.DOLocalRotate(new Vector3(0, 0, units[idx1].transform.localRotation.eulerAngles.z + 90), _rotationTime);
+			units[idx1].transform.DOLocalMoveX(units[idx1].transform.localPosition.x - gap, _rotationTime).SetEase(Ease.OutQuad);
+
+			units[idx2].transform.DOLocalRotate(new Vector3(0, 0, units[idx2].transform.localRotation.eulerAngles.z + 90), _rotationTime);
+			units[idx2].transform.DOLocalMoveY(units[idx2].transform.localPosition.y + gap, _rotationTime).SetEase(Ease.OutQuad);
+
+			units[idx3].transform.DOLocalRotate(new Vector3(0, 0, units[idx3].transform.localRotation.eulerAngles.z + 90), _rotationTime);
+			units[idx3].transform.DOLocalMoveX(units[idx3].transform.localPosition.x +gap, _rotationTime).SetEase(Ease.OutQuad);
+		}
+	}
+
+	void clockWiseUpdate()
 	{
 		int count, idx = 0;
 
@@ -83,19 +151,25 @@ public class FeatureScroll : MonoBehaviour
 			int idx2 = (idx1 + _yNum)%units.Count;
 			int idx3 = (idx2 + _xNum)%units.Count;
 			isRotating = true;
-			Transform rotateTf = units[idx].transform;
-			rotateTf.DOLocalRotate(new Vector3(0, 0, units[idx].transform.localRotation.eulerAngles.z - 90), _rotationTime).OnComplete(()=>{
+			units[idx].transform.DOLocalRotate(new Vector3(0, 0, units[idx].transform.localRotation.eulerAngles.z - 90), _rotationTime).OnComplete(()=>{
 				startIdx = (startIdx+units.Count-1)%units.Count;
 				isRotating = false;
-				rotateTf.localPosition = units[(idx + 1)%units.Count].transform.localPosition - new Vector3(unitWidth+gap, 0, 0);
-				units[idx1].transform.localPosition = units[(idx1 + 1)%units.Count].transform.localPosition + new Vector3(0, unitWidth+gap, 0);
-				units[idx2].transform.localPosition = units[(idx2 + 1)%units.Count].transform.localPosition + new Vector3(unitWidth+gap, 0, 0);
-				units[idx3].transform.localPosition = units[(idx3 + 1)%units.Count].transform.localPosition - new Vector3(0, unitWidth+gap, 0);
+				units[idx].transform.localPosition = units[(idx + 1)%units.Count].transform.localPosition - new Vector3(_dis, 0, 0);
+				units[idx1].transform.localPosition = units[(idx1 + 1)%units.Count].transform.localPosition + new Vector3(0, _dis, 0);
+				units[idx2].transform.localPosition = units[(idx2 + 1)%units.Count].transform.localPosition + new Vector3(_dis, 0, 0);
+				units[idx3].transform.localPosition = units[(idx3 + 1)%units.Count].transform.localPosition - new Vector3(0, _dis, 0);
 			});
 
+			units[idx].transform.DOLocalMoveX(units[idx].transform.localPosition.x + gap, _rotationTime).SetEase(Ease.OutQuad);
+
 			units[idx1].transform.DOLocalRotate(new Vector3(0, 0, units[idx1].transform.localRotation.eulerAngles.z - 90), _rotationTime);
+			units[idx1].transform.DOLocalMoveY(units[idx1].transform.localPosition.y - gap, _rotationTime).SetEase(Ease.OutQuad);
+
 			units[idx2].transform.DOLocalRotate(new Vector3(0, 0, units[idx2].transform.localRotation.eulerAngles.z - 90), _rotationTime);
+			units[idx2].transform.DOLocalMoveX(units[idx2].transform.localPosition.x -gap, _rotationTime).SetEase(Ease.OutQuad);
+
 			units[idx3].transform.DOLocalRotate(new Vector3(0, 0, units[idx3].transform.localRotation.eulerAngles.z - 90), _rotationTime);
+			units[idx3].transform.DOLocalMoveY(units[idx3].transform.localPosition.y + gap, _rotationTime).SetEase(Ease.OutQuad);
 		}
 	}
 
@@ -113,18 +187,6 @@ public class FeatureScroll : MonoBehaviour
 
 		if(_spr)
 			DestroyImmediate(_spr);
-//		if(isClockWise == 0)
-//			_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(1, 0), 1);
-//		else
-//			_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(0, 0), 1);
-		_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(0.5f, 0.5f), 1);
-
-		_yNum = (int)Mathf.Ceil((cg.analyse.lineHeight+edge*2 + unitHeight)/(unitWidth+gap));
-		_xNum = (int)Mathf.Ceil((cg.textWidth+edge*2+unitHeight)/(unitWidth+gap));
-
-
-		width = _xNum*(unitWidth+gap) + unitHeight;
-		height = _yNum*(unitWidth+gap)+ unitHeight;
 
 		for(int i = 0; i < units.Count; i++)
 		{
@@ -132,12 +194,26 @@ public class FeatureScroll : MonoBehaviour
 		}
 		units.Clear();
 
+		float pivotX; 
+		if(!isClockWise)
+			pivotX = 1;
+		else
+			pivotX = 0;
+
+		_spr = Sprite.Create(GlobalController.instance.prefabSetting.scrollUnitTexture, new Rect(0, 0, unitWidth, unitHeight), new Vector2(pivotX, 0), 1);
+		
+		_xNum = (int)Mathf.Ceil((cg.textWidth+edge*2-gap)/(unitWidth+gap));
+		_yNum = (int)Mathf.Ceil((cg.analyse.lineHeight+edge*2 - gap)/(unitWidth+gap));
+
+
+		width = _xNum*(unitWidth+gap) + unitHeight*2 + gap;
+		height = _yNum*(unitWidth+gap)+ unitHeight*2 + gap;
 
 		SpriteRenderer spr;
 		GameObject unit;
 		SpriteRenderer parentSpr = cg._character[0].GetComponent<SpriteRenderer>();
-		float startX = unitWidth*0.5f;
-		float startY = unitHeight + (unitWidth+gap)*_yNum - unitHeight*0.5f;
+		float startX = unitHeight + gap + unitWidth*pivotX;
+		float startY = unitHeight + (unitWidth+gap)*_yNum + gap;
 		for(int i = 0; i < _xNum; i++)
 		{
 			unit = new GameObject();
@@ -152,8 +228,8 @@ public class FeatureScroll : MonoBehaviour
 			units.Add(unit);
 		}
 
-		startX = _xNum*(unitWidth+gap) + unitHeight*0.5f;
-		startY = startY + unitHeight*0.5f - unitWidth*0.5f;
+		startX = startX + (unitWidth + gap)*_xNum- unitWidth*pivotX;
+		startY = startY - gap -  unitWidth*pivotX;
 		for(int i = 0; i < _yNum; i++)
 		{
 			unit = new GameObject();
@@ -162,15 +238,15 @@ public class FeatureScroll : MonoBehaviour
 			spr.color = Config.scrollColors[(i+_xNum)%3];
 			unit.transform.SetParent(root);
 			unit.transform.localPosition = new Vector2(startX, startY - i*(unitWidth+gap));
-			unit.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 90));
+			unit.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -90));
 			spr.sortingLayerName = parentSpr.sortingLayerName;
 			spr.sortingOrder = parentSpr.sortingOrder;
 			unit.name = "col"+i.ToString();
 			units.Add(unit);
 		}
 
-		startX = startX + unitHeight*0.5f - unitWidth*0.5f;
-		startY= unitHeight*0.5f;
+		startX = startX + unitHeight*0.5f - unitWidth*0.5f -  unitWidth*pivotX;
+		startY= unitHeight ;
 		for(int i = 0; i < _xNum; i++)
 		{
 			unit = new GameObject();
@@ -179,15 +255,15 @@ public class FeatureScroll : MonoBehaviour
 			spr.color = Config.scrollColors[(i+_xNum + _yNum)%3];
 			unit.transform.SetParent(root);
 			unit.transform.localPosition = new Vector2( startX -(unitWidth+gap)*i, startY);
-			unit.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 180));
+			unit.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -180));
 			spr.sortingLayerName = parentSpr.sortingLayerName;
 			spr.sortingOrder = parentSpr.sortingOrder;
 			unit.name = "row"+i.ToString();
 			units.Add(unit);
 		}
 
-		startX = unitHeight*0.5f;
-		startY = unitWidth*0.5f;
+		startX = unitHeight;
+		startY =unitHeight + gap + unitWidth*pivotX;
 		for(int i = 0; i < _yNum; i++)
 		{
 			unit = new GameObject();
@@ -196,7 +272,7 @@ public class FeatureScroll : MonoBehaviour
 			spr.color = Config.scrollColors[(i+_xNum*2 + _yNum)%3];
 			unit.transform.SetParent(root);
 			unit.transform.localPosition =  new Vector2(startX, startY + i*(unitWidth+gap));
-			unit.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 270));
+			unit.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -270));
 			spr.sortingLayerName = parentSpr.sortingLayerName;
 			spr.sortingOrder = parentSpr.sortingOrder;
 			unit.name = "col"+i.ToString();
