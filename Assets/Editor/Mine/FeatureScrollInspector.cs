@@ -19,7 +19,6 @@ public class FeatureScrollInspector : Editor {
 		}
 
 		script.speed = EditorGUILayout.FloatField("speed", script.speed);
-		script.isClockWise = EditorGUILayout.Toggle("clockWise", script.isClockWise);
 		if (GUI.changed)
 			EditorUtility.SetDirty(target);
 	}

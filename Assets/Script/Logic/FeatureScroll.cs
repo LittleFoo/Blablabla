@@ -4,9 +4,34 @@ using DG.Tweening;
 
 public class FeatureScroll : MonoBehaviour
 {
-	public bool isClockWise = false;
+	[SerializeField]
+//	private bool _isClockWise = false;
+//	public bool isClockWise
+//	{
+//		get{return _isClockWise;}
+//		set{
+//			if(value == _isClockWise)
+//			return;
+//			_isClockWise = value;
+//			create();
+//		}
+//	}
 	public Transform tf;
-	public float speed = 3;
+	[SerializeField]
+	private float _speed = 3;
+	public float speed
+	{
+		get{return  _speed;}
+		set{
+			if(_speed * value > 0)
+			{
+				_speed = value;
+				return;
+			}
+			_speed = value;
+			create();
+		}
+	}
 
 	public Transform root;
 	public BoxCollider2D col;
@@ -37,8 +62,8 @@ public class FeatureScroll : MonoBehaviour
 	void Awake()
 	{
 		_dis = unitWidth + gap;
-		_rotationTime = _dis/speed;
-		if(!isClockWise)
+		_rotationTime = _dis/Mathf.Abs(_speed);
+		if(_speed < 0)
 			curUpdate = antiClockUpdate;
 		else
 			curUpdate = clockWiseUpdate;
@@ -59,13 +84,13 @@ public class FeatureScroll : MonoBehaviour
 			idx = i;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition -= new Vector3(speed * Time.deltaTime, 0, 0);
+			units[idx].transform.localPosition += new Vector3(_speed * Time.deltaTime, 0, 0);
 
 
 			idx = idx + _xNum + _yNum;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition += new Vector3(speed * Time.deltaTime, 0);
+			units[idx].transform.localPosition -= new Vector3(_speed * Time.deltaTime, 0);
 		}
 
 		count = startIdx + _xNum + _yNum;
@@ -74,12 +99,12 @@ public class FeatureScroll : MonoBehaviour
 			idx = i;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition += new Vector3(0, speed * Time.deltaTime);
+			units[idx].transform.localPosition -= new Vector3(0, _speed * Time.deltaTime);
 
 			idx = idx + _xNum + _yNum;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition -= new Vector3(0, speed * Time.deltaTime);
+			units[idx].transform.localPosition += new Vector3(0, _speed * Time.deltaTime);
 		}
 
 		idx = startIdx;
@@ -122,13 +147,13 @@ public class FeatureScroll : MonoBehaviour
 			idx = i;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition += new Vector3(speed * Time.deltaTime, 0, 0);
+			units[idx].transform.localPosition += new Vector3(_speed * Time.deltaTime, 0, 0);
 
 
 			idx = idx + _xNum + _yNum;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition -= new Vector3(speed * Time.deltaTime, 0);
+			units[idx].transform.localPosition -= new Vector3(_speed * Time.deltaTime, 0);
 		}
 
 		count = startIdx + _xNum + _yNum;
@@ -137,12 +162,12 @@ public class FeatureScroll : MonoBehaviour
 			idx = i;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition -= new Vector3(0, speed * Time.deltaTime);
+			units[idx].transform.localPosition -= new Vector3(0, _speed * Time.deltaTime);
 
 			idx = idx + _xNum + _yNum;
 			if(idx >= units.Count)
 				idx = idx%units.Count;
-			units[idx].transform.localPosition += new Vector3(0, speed * Time.deltaTime);
+			units[idx].transform.localPosition += new Vector3(0, _speed * Time.deltaTime);
 		}
 
 		if(!isRotating && units[idx].transform.localPosition.y >= flagY)
@@ -181,6 +206,8 @@ public class FeatureScroll : MonoBehaviour
 		if(root == null)
 		{
 			root = new GameObject().transform;
+			root.tag = Config.TAG_SCROLL;
+			root.name = "scroll";
 			root.SetParent(tf);
 			col = root.gameObject.AddComponent<BoxCollider2D>();
 		}
@@ -195,7 +222,7 @@ public class FeatureScroll : MonoBehaviour
 		units.Clear();
 
 		float pivotX; 
-		if(!isClockWise)
+		if(_speed < 0)
 			pivotX = 1;
 		else
 			pivotX = 0;
@@ -280,8 +307,12 @@ public class FeatureScroll : MonoBehaviour
 			flagY = unit.transform.localPosition.y;
 		}
 
-		col.size = new Vector2(width, height);
+		col.size = new Vector2(width - (unitHeight+gap)*2, height);
 		col.offset = new Vector2(width*0.5f, height*0.5f);
 		root.localPosition = new Vector3(-width*0.5f +(0.5f-cg.pivot.x)*cg.textWidth, -height*0.5f +(0.5f-cg.pivot.y)*cg.analyse.lineHeight, 0);
+	}
+
+	public void onPlayerLand(PhysicalPlayerController player)
+	{
 	}
 }
