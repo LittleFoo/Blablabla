@@ -9,7 +9,7 @@ public class FeatureIce : MonoBehaviour {
 		{
 		case Config.TAG_Player:
 			PhysicalPlayerController p =obj.GetComponent<PhysicalPlayerController>();
-			p.onIce();
+				p.onIce();
 			break;
 		}
 	}
@@ -21,7 +21,7 @@ public class FeatureIce : MonoBehaviour {
 		{
 		case Config.TAG_Player:
 			PhysicalPlayerController p =obj.GetComponent<PhysicalPlayerController>();
-			p.leaveIce();
+				p.leaveIce();
 			break;
 		}
 	}

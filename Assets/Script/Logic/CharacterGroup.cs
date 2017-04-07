@@ -18,7 +18,9 @@ public class CharacterGroup : MonoBehaviour {
 	public Transform fontObj
 	{
 		set{
-				_fontObj = value; 
+			_fontObj = value; 
+			if(_fontObj == null)
+				return;
 			analyse = _fontObj.GetComponent<FontAnalyse>();}
 		get{return _fontObj;}
 	}
@@ -34,6 +36,7 @@ public class CharacterGroup : MonoBehaviour {
 	}
 	public FontAnalyse analyse;
 	public Color color = Color.black;
+	public BoxCollider2D col;
 	public List<CharacterCell> _character = new List<CharacterCell>();
 	private char[] chars ;
 	private string _lastStr;
@@ -75,17 +78,15 @@ public class CharacterGroup : MonoBehaviour {
 			}
 		}
 
-		BoxCollider2D col = GetComponent<BoxCollider2D>();
+		if(col == null)
+			col = gameObject.GetComponent<BoxCollider2D>();
+		
 		if(col == null)
 			col = gameObject.AddComponent<BoxCollider2D>();
 		col.size = new Vector2(_textWidth, analyse.lineHeight);
 		col.offset = new Vector2((0.5f - pivot.x)*_textWidth,  	(0.5f-pivot.y)*analyse.lineHeight);
 		col.isTrigger = true;
-
-
 	}
-
-
 
 	public void setTextInEditor(bool ignoreSame = true)
 	{

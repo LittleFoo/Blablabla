@@ -2,7 +2,7 @@
 using System.Collections;
 using DG.Tweening;
 
-public class PhysicalPlayerController : MonoBehaviour
+public class PhysicalPlayerController : FeatureReactionBase
 {
 	public Rigidbody2D rb;
 	public CharacterAnimation ani;
@@ -35,10 +35,12 @@ public class PhysicalPlayerController : MonoBehaviour
 	private int _restrictDirection;
 	private bool _lockPosture;
 	private float _idleTime;
-	private bool _setSpeedBeforeBottom;
+	private bool _setSpeedBeforeBottom = false;
 	public bool setSpeedBeforeBottom
 	{
-		set{_setSpeedBeforeBottom = value;}
+		set{
+			_setSpeedBeforeBottom = value;
+		}
 	}
 	private System.Action jumpHandler;
 
@@ -182,20 +184,20 @@ public class PhysicalPlayerController : MonoBehaviour
 				}
 				break;
 
-			case Config.TAG_SCROLL:
-				delta = coll.contacts[0].point.y-tf.position.y;
-				FeatureScroll scroll = obj.transform.parent.GetComponent<FeatureScroll>();
-				if(delta < 2)
-				{
-					if(isBottom <= 0)
-						onBottom();
-					scroll.onPlayerLand(this);
-					onScroll(scroll);
-				} else if(delta > height)
-				{
-					rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
-				}
-				break;
+//			case Config.TAG_SCROLL:
+//				delta = coll.contacts[0].point.y-tf.position.y;
+//				FeatureScroll scroll = obj.transform.parent.GetComponent<FeatureScroll>();
+//				if(delta < 2)
+//				{
+//					if(isBottom <= 0)
+//						onBottom();
+//					scroll.onPlayerLand(this);
+//					onScroll(scroll);
+//				} else if(delta > height)
+//				{
+//					rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
+//				}
+//				break;
 		}
 	}
 
@@ -258,29 +260,48 @@ public class PhysicalPlayerController : MonoBehaviour
 	}
 
 	//lock players move direction and let them move faster
-	public void onIce()
+	public override void onIce()
 	{
-		setSpeedBeforeBottom = !_setSpeedBeforeBottom;
 		_restrictDirection++;
 		if(_playerDirection == Config.Direction.None)
 			_playerDirection = Config.Direction.Right;
 		_moveSpeed = GlobalController.instance.setting.moveSpeed*2;
 		ani.play(Config.CharcterAction.Crash);
 		_lockPosture = true;
+		if(lastTriggerType == Config.ReactionType.Null)
+			lastTriggerType = Config.ReactionType.Ice;
+		else 
+			lastTriggerType = Config.ReactionType.Null;
 	}
 
 	private float additionSpeed = 0;
-	public void onScroll(FeatureScroll scroll)
+	public override void onScroll(Collision2D coll, FeatureScroll scroll)
 	{
+		float delta = coll.contacts[0].point.y-tf.position.y;
+		if(delta < 2)
+		{
+			if(isBottom <= 0)
+				onBottom();
+			scroll.onPlayerLand(this);
 			additionSpeed = scroll.speed;
+		} else if(delta > height)
+		{
+			rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
+		}
+			
+	}
+
+	public override void leaveScroll(Collision2D coll, FeatureScroll scroll)
+	{
+		isBottom = 0;
 	}
 
 	//unlock players move direction
-	public void leaveIce()
+	public override void leaveIce()
 	{
 		_restrictDirection--;
-
 		_lockPosture = false;
+		isBottom = 0;
 	}
 
 	#endregion
@@ -316,29 +337,35 @@ public class PhysicalPlayerController : MonoBehaviour
 
 	void onBottom()
 	{
-		_lockPosture = false;
 		isBottom = 1;
 		_jumpCount = 0;
 
-		//correct some attribute. like adjust direction after rebound
-		_playerDirection = _arrowStatus;
-		if(_setSpeedBeforeBottom)
-			setSpeedBeforeBottom = false;
-		else
+		//correct some attribute if no one else set it .
+		if(lastTriggerType == Config.ReactionType.Null)
 		{
+			lastTriggerType = Config.ReactionType.Normal;
 			_moveSpeed = GlobalController.instance.setting.moveSpeed;
 			additionSpeed = 0;
-			setSpeedBeforeBottom = true;
+			_playerDirection = _arrowStatus;
+			_lockPosture = false;
+		}
+		else
+		{
+			lastTriggerType = Config.ReactionType.Null;
 		}
 
-		if(_arrowStatus == Config.Direction.None)
+		if(!_lockPosture)
 		{
-			ani.play(Config.CharcterAction.Idle);
-			cam.correct(tf);
-		} else
-		{
-			ani.play(Config.CharcterAction.Walk);
+			if(_arrowStatus == Config.Direction.None )
+			{
+				ani.play(Config.CharcterAction.Idle);
+
+			} else
+			{
+				ani.play(Config.CharcterAction.Walk);
+			}
 		}
+		cam.correct(tf);
 		rb.velocity = new Vector2(rb.velocity.x, 0);
 	}
 

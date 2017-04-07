@@ -209,7 +209,7 @@ public class FeatureScroll : MonoBehaviour
 			root.tag = Config.TAG_SCROLL;
 			root.name = "scroll";
 			root.SetParent(tf);
-			col = root.gameObject.AddComponent<BoxCollider2D>();
+			col = tf.gameObject.AddComponent<BoxCollider2D>();
 		}
 
 		if(_spr)
@@ -308,11 +308,26 @@ public class FeatureScroll : MonoBehaviour
 		}
 
 		col.size = new Vector2(width - (unitHeight+gap)*2, height);
-		col.offset = new Vector2(width*0.5f, height*0.5f);
+		col.offset =  new Vector2((0.5f - cg.pivot.x)*cg.textWidth, (0.5f-cg.pivot.y)*cg.analyse.lineHeight);
 		root.localPosition = new Vector3(-width*0.5f +(0.5f-cg.pivot.x)*cg.textWidth, -height*0.5f +(0.5f-cg.pivot.y)*cg.analyse.lineHeight, 0);
 	}
 
 	public void onPlayerLand(PhysicalPlayerController player)
 	{
+		
+	}
+
+	void OnCollisionEnter2D(Collision2D coll) 
+	{
+		FeatureReactionBase item = coll.gameObject.GetComponent<FeatureReactionBase>();
+		if(item != null)
+			item.onScroll(coll, this);
+	}
+
+	public void OnCollisionExit2D(Collision2D coll)
+	{
+		FeatureReactionBase item = coll.gameObject.GetComponent<FeatureReactionBase>();
+		if(item != null)
+			item.leaveScroll(coll, this);
 	}
 }

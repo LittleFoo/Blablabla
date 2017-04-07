@@ -130,6 +130,7 @@ public class FontAnalyse : MonoBehaviour {
 			go.transform.localPosition = new Vector3
 				(37*(i%20), 37*(int)(i/20), 0);
 			_fontDatas.Add(d.id, d);
+			d.colList = d.prefab.GetComponents<BoxCollider2D>();
 //			print(d.prefab.GetComponent<SpriteRenderer>().sprite);
 //			GameObject.DestroyImmediate(go);
 		}

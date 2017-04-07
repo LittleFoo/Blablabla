@@ -7,6 +7,7 @@ public class Config {
 	public enum ColliderAction{Movement, Rotation, Scale, Alpha}
 	public enum Pivot{TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom, BottomRight}
 	public enum ActionTriggerType{Awake, onCollider}
+	public enum ReactionType{Null, Normal, Ice, Scroll}
 
 	public const string TAG_Player = "Player";
 	public const string TAG_GROUP = "CharacterGroup";
