@@ -6,6 +6,11 @@ using PathologicalGames;
 public class CharacterGroup : MonoBehaviour {
 	// Use this for initialization
 //	public Dictionary<object, bool> _editorListItemStates = new Dictionary<object, bool>();
+	public FontAnalyse analyse;
+	public Color color = Color.black;
+	public BoxCollider2D col;
+	public List<CharacterCell> _character = new List<CharacterCell>();
+
 	[SerializeField]
 	private string _contentStr;
 	public string contentStr
@@ -34,14 +39,28 @@ public class CharacterGroup : MonoBehaviour {
 		}
 		get{return _pivot;}
 	}
-	public FontAnalyse analyse;
-	public Color color = Color.black;
-	public BoxCollider2D col;
-	public List<CharacterCell> _character = new List<CharacterCell>();
 	private char[] chars ;
+	[SerializeField]
 	private string _lastStr;
+	[SerializeField]
 	private float _textWidth;
 	public float textWidth{get{return _textWidth;}}
+	[SerializeField]
+	private bool _createColliderForChar = true;
+	public bool createColliderForChar{
+		get{return _createColliderForChar;}
+		set{
+			if(_createColliderForChar != value)
+			{
+				_createColliderForChar = value;
+				setTextInEditor(false);
+			}
+			else
+				_createColliderForChar = value;
+			
+		}
+	}
+	private bool isCreating = false;
 
 	void Start () {
 		gameObject.tag = Config.TAG_GROUP;
@@ -53,7 +72,7 @@ public class CharacterGroup : MonoBehaviour {
 
 	public void setPivot()
 	{
-		if(_character.Count == 0)
+		if(_character.Count == 0 || isCreating)
 			return;
 		chars = contentStr.ToCharArray();
 		Transform obj;
@@ -71,6 +90,8 @@ public class CharacterGroup : MonoBehaviour {
 		for(int i = 0; i < _character.Count; i++)
 		{
 			obj = _character[i].tf;
+			if(chars.Length != _character.Count)
+				return;
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
 				obj.transform.localPosition = new Vector2(x + xOffset, -d._actualOffsetY+yOffset);
@@ -92,6 +113,7 @@ public class CharacterGroup : MonoBehaviour {
 	{
 		if(ignoreSame && _lastStr == contentStr)
 			return;
+		isCreating = true;
 		Vector2 lastPivot = pivot;
 		pivot = new Vector2(0, 1);
 		_lastStr = contentStr;
@@ -104,9 +126,11 @@ public class CharacterGroup : MonoBehaviour {
 		float x = 0;
 		BoxCollider2D prefabCol;
 
+		List<CharacterCell> _lastList = new List<CharacterCell>();
 		for(int i = 0; i < _character.Count; i++)
 		{
-			DestroyImmediate(_character[i].gameObject);
+			_lastList.Add(_character[i]);
+//			DestroyImmediate(_character[i].gameObject);
 		}
 		_character.Clear();
 
@@ -115,7 +139,7 @@ public class CharacterGroup : MonoBehaviour {
 		{
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
-				if(d.colList == null || d.colList.Length == 0)
+				if(!_createColliderForChar ||d.colList == null || d.colList.Length == 0)
 				{
 					obj = GameObject.Instantiate( settings.charPrefab0).transform;
 					cell = obj.GetComponent<CharacterCell>();
@@ -148,7 +172,8 @@ public class CharacterGroup : MonoBehaviour {
 				obj.transform.SetParent(transform, false);
 				obj.name = chars[i].ToString();
 				obj.transform.localPosition = new Vector2(x, -d._actualOffsetY);
-
+				if(i < _lastList.Count)
+				copy(_lastList[i].gameObject, obj.gameObject);
 				x += d.actualAdvance;
 				spr.sprite = d.spr;
 
@@ -159,9 +184,26 @@ public class CharacterGroup : MonoBehaviour {
 
 		}
 
+		for(int i = 0; i < _lastList.Count; i++)
+		{
+			DestroyImmediate(_lastList[i].gameObject);
+		}
+
 		_textWidth = x;
 		pivot = lastPivot;
+		isCreating = false;
 		setPivot();
+	}
+
+	public void copy(GameObject before, GameObject cur)
+	{
+		Trigger coppiedT = before.GetComponent<Trigger>();
+
+		if(coppiedT != null)
+		{
+			UnityEditorInternal.ComponentUtility.CopyComponent(coppiedT);
+			UnityEditorInternal.ComponentUtility.PasteComponentAsNew(cur);
+		}
 	}
 
 //	public void setText()

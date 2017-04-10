@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 
-public class FeatureScroll : MonoBehaviour
+public class FeatureScroll : MonoBehaviour , common.ITimerEvent
 {
 	[SerializeField]
 //	private bool _isClockWise = false;
@@ -67,9 +67,11 @@ public class FeatureScroll : MonoBehaviour
 			curUpdate = antiClockUpdate;
 		else
 			curUpdate = clockWiseUpdate;
+
+		common.TimerManager.instance.addEventListeners(this);
 	}
 
-	void Update()
+	public void onUpdate()
 	{
 		curUpdate();
 	}
@@ -203,15 +205,20 @@ public class FeatureScroll : MonoBehaviour
 		startIdx = 0;
 		tf = transform;
 		CharacterGroup cg = tf.GetComponent<CharacterGroup>();
+		cg.createColliderForChar = false;
 		if(root == null)
 		{
 			root = new GameObject().transform;
 			root.tag = Config.TAG_SCROLL;
 			root.name = "scroll";
 			root.SetParent(tf);
-			col = tf.gameObject.AddComponent<BoxCollider2D>();
+
 		}
 
+			col = tf.GetComponent<BoxCollider2D>();
+		if(col == null);
+			col = tf.gameObject.AddComponent<BoxCollider2D>();
+		col.isTrigger = false;
 		if(_spr)
 			DestroyImmediate(_spr);
 
@@ -329,5 +336,10 @@ public class FeatureScroll : MonoBehaviour
 		FeatureReactionBase item = coll.gameObject.GetComponent<FeatureReactionBase>();
 		if(item != null)
 			item.leaveScroll(coll, this);
+	}
+
+	public void OnDestroy()
+	{
+		common.TimerManager.instance.removeEventListeners(this);
 	}
 }

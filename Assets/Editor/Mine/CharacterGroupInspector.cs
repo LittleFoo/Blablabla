@@ -38,7 +38,7 @@ public class CharacterGroupInspector : Editor {
 		script.fontObj = (Transform)EditorGUILayout.ObjectField("fontObj", script.fontObj, typeof(Transform)); 
 		script.pivot = EditorGUILayout.Vector2Field("pivot", script.pivot);
 		script.color = EditorGUILayout.ColorField("color",script.color);
-
+		script.createColliderForChar = EditorGUILayout.Toggle("createCollider",script.createColliderForChar);
 //		this.expandPrefabs = PGEditorUtils.SerializedObjFoldOutList<CharacterCell>
 //			(
 //				"Per-Prefab Pool Options", 

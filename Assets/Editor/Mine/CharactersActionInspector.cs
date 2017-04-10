@@ -159,7 +159,7 @@ public class CharactersActionInspector : Editor {
 
 				// Display Fields Dynamically
 				item.actionType = PGEditorUtils.EnumPopup<Config.ColliderAction>("actionType", item.actionType);
-				item.condition = PGEditorUtils.EnumPopup<Config.ActionTriggerType>("triggerCondition", item.condition);
+				item.condition = PGEditorUtils.EnumPopup<Config.ActionTriggerCondition>("triggerCondition", item.condition);
 				PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("loop"));
 				switch(item.actionType)
 				{
@@ -184,7 +184,11 @@ public class CharactersActionInspector : Editor {
 				}
 				PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("duration"));
 				if(item.loop > 1 || item.loop < 0)
+				{
+					item.loopType = PGEditorUtils.EnumPopup<DG.Tweening.LoopType>("loopType", item.loopType);
 					PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("pauseTime"));
+				}
+				PGEditorUtils.FieldInfoField<CharactersActionData>(item, type.GetField("delay"));
 				GUILayout.Space(2);
 			}
 
