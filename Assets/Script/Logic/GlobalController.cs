@@ -29,11 +29,8 @@ public class GlobalController : MonoBehaviour {
 
 		setting.init();
 
-		float screenWidth = Mathf.Ceil( setting.gridSize*setting.gridNum/9.0f*16);
-		screenWidth = Mathf.Ceil(screenWidth*1.0f/16)*16;
-		float screenHeight = screenWidth/16*9;
-		Camera.main.orthographicSize = screenHeight*0.5f;
-		print("screenW:"+screenWidth.ToString() +",screenHeight:"+screenHeight.ToString());
+
+
 //		CharacterCell.initHandler();
 	}
 	
@@ -44,23 +41,20 @@ public class GlobalController : MonoBehaviour {
 
 	public PathologicalGames.SpawnPool getCurPool()
 	{
-		SpawnPool _pool;
-		if(!PathologicalGames.PoolManager.Pools.TryGetValue("game", out _pool))
-		{
-			_pool = PathologicalGames.PoolManager.Pools.Create("game", gameObject);
+		if(_pool != null)
+			return _pool;
 
-			PrefabPool pPool = new PrefabPool(prefabSetting.charPrefab0.transform);
-			pPool.preloadAmount = 5;
-			_pool.CreatePrefabPool(pPool);
-
-			pPool = new PrefabPool(prefabSetting.charPrefab1.transform);
-			pPool.preloadAmount = 40;
-			_pool.CreatePrefabPool(pPool);
-
-			pPool = new PrefabPool(prefabSetting.charPrefab2.transform);
-			pPool.preloadAmount = 20;
-			_pool.CreatePrefabPool(pPool);
-		}
+		_pool = gameObject.AddComponent<SpawnPool>();
+		PrefabPool pp = new PrefabPool(GlobalController.instance.prefabSetting.bullet);
+		_pool.CreatePrefabPool(pp);
+		pp.preloadAmount = 10;
+		pp.limitInstances = false;
 		return _pool;
+	}
+
+	void OnDestroy()
+	{
+		if(_instance == this)
+			_instance = null;
 	}
 }

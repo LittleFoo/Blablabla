@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using DG.Tweening;
+using PathologicalGames;
 
 public class PhysicalPlayerController : FeatureReactionBase
 {
-	public Rigidbody2D rb;
-	public CharacterAnimation ani;
-	public Transform tf;
+	
+//	public CharacterAnimation ani;
 	public int isBottom;
 	public CameraScroll cam;
 	public bool _autoJump;
@@ -28,7 +28,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 	private Config.Direction _arrowStatus = Config.Direction.None;
 	private float initScaleX;
 	private float height;
-	private bool isDead = false;
+
 	private float _upSpeed;
 	private float _moveSpeed;
 	private int _jumpCount = 0;
@@ -42,11 +42,14 @@ public class PhysicalPlayerController : FeatureReactionBase
 			_setSpeedBeforeBottom = value;
 		}
 	}
+	private bool _isShooting = false;
+	private float _bulletCD = 0;
 	private System.Action jumpHandler;
+	private BulletData bulletData;
 
 	void Start()
 	{
-		tf = transform;
+		
 		cam = Camera.main.GetComponent<CameraScroll>();
 		if(ani != null)
 		{
@@ -68,7 +71,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 		ani.doJump();
 		_lockPosture = true;
-		initScaleX = transform.lossyScale.x;
+		initScaleX = Mathf.Abs(transform.lossyScale.x);
 
 		if(_autoJump)
 			jumpHandler = autoJumpHandler;
@@ -78,6 +81,9 @@ public class PhysicalPlayerController : FeatureReactionBase
 		_lastPostion = tf.position;
 
 		cam.setPos(tf);
+
+		bulletData = new BulletData();
+		bulletData.speed = GlobalController.instance.setting.bigUpSpeed;
 	}
 
 	private Vector3 _lastPostion;
@@ -110,6 +116,23 @@ public class PhysicalPlayerController : FeatureReactionBase
 			arrowChange = true;
 		}
 
+		if(Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			_isShooting = true;
+		}
+
+		if(Input.GetKeyUp(KeyCode.DownArrow))
+		{
+			_isShooting = false;
+		}
+
+		if(_isShooting)
+		{
+			if(_bulletCD <= 0)
+				shooting();
+		}
+
+		_bulletCD -= Time.unscaledDeltaTime;
 		jumpHandler();
 
 	
@@ -224,7 +247,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 			tf.SetParent(null, true);
 	}
 
-	public void dead()
+	public override void dead()
 	{
 		isDead = true;
 		tf.GetComponent<Collider2D>().enabled = false;
@@ -306,6 +329,9 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 	#endregion
 
+	//unlock players move direction
+
+
 	private void autoJumpHandler()
 	{
 		if(isBottom > 0)
@@ -369,4 +395,15 @@ public class PhysicalPlayerController : FeatureReactionBase
 		rb.velocity = new Vector2(rb.velocity.x, 0);
 	}
 
+
+	void shooting()
+	{
+		_bulletCD = GlobalController.instance.setting.bulletCD;
+
+		Bullet bullet = GlobalController.instance.getCurPool().Spawn(GlobalController.instance.prefabSetting.bullet).GetComponent<Bullet>();
+		bullet.init(tf.position, 
+			(_playerDirection != Config.Direction.None)?_playerDirection:((initScaleX == tf.lossyScale.x)?Config.Direction.Right:Config.Direction.Left),
+			bulletData
+		);
+	}
 }

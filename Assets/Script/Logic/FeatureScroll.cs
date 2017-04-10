@@ -35,6 +35,7 @@ public class FeatureScroll : MonoBehaviour , common.ITimerEvent
 
 	public Transform root;
 	public BoxCollider2D col;
+	public Rigidbody2D rb;
 	[SerializeField]
 	private float height;
 	[SerializeField]
@@ -215,9 +216,14 @@ public class FeatureScroll : MonoBehaviour , common.ITimerEvent
 
 		}
 
-			col = tf.GetComponent<BoxCollider2D>();
-		if(col == null);
+		if(col == null)
 			col = tf.gameObject.AddComponent<BoxCollider2D>();
+
+		rb = tf.GetComponent<Rigidbody2D>();
+		if(rb == null)
+			rb = tf.gameObject.AddComponent<Rigidbody2D>();
+		rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
 		col.isTrigger = false;
 		if(_spr)
 			DestroyImmediate(_spr);
@@ -314,7 +320,7 @@ public class FeatureScroll : MonoBehaviour , common.ITimerEvent
 			flagY = unit.transform.localPosition.y;
 		}
 
-		col.size = new Vector2(width - (unitHeight+gap)*2, height);
+		col.size = new Vector2(width, height);
 		col.offset =  new Vector2((0.5f - cg.pivot.x)*cg.textWidth, (0.5f-cg.pivot.y)*cg.analyse.lineHeight);
 		root.localPosition = new Vector3(-width*0.5f +(0.5f-cg.pivot.x)*cg.textWidth, -height*0.5f +(0.5f-cg.pivot.y)*cg.analyse.lineHeight, 0);
 	}
@@ -341,5 +347,27 @@ public class FeatureScroll : MonoBehaviour , common.ITimerEvent
 	public void OnDestroy()
 	{
 		common.TimerManager.instance.removeEventListeners(this);
+	}
+
+	public void clear()
+	{
+		if(root != null)
+		{
+			DestroyImmediate(root.gameObject);
+			root = null;
+		}
+
+		if(col != null)
+		{
+			DestroyImmediate(col);
+			col = null;
+		}
+
+		if(rb != null)
+		{
+			DestroyImmediate(rb);
+			rb = null;
+		}
+		
 	}
 }
