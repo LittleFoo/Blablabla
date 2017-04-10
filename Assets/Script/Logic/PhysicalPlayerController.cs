@@ -341,7 +341,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 		_jumpCount = 0;
 
 		//correct some attribute if no one else set it .
-		if(lastTriggerType == Config.ReactionType.Null)
+		if(lastTriggerType == Config.ReactionType.Null || lastTriggerType == Config.ReactionType.Normal)
 		{
 			lastTriggerType = Config.ReactionType.Normal;
 			_moveSpeed = GlobalController.instance.setting.moveSpeed;
