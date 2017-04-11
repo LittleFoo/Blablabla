@@ -210,21 +210,6 @@ public class PhysicalPlayerController : FeatureReactionBase
 					coll.transform.GetComponent<CharacterCell>().pushUp();
 				}
 				break;
-
-//			case Config.TAG_SCROLL:
-//				delta = coll.contacts[0].point.y-tf.position.y;
-//				FeatureScroll scroll = obj.transform.parent.GetComponent<FeatureScroll>();
-//				if(delta < 2)
-//				{
-//					if(isBottom <= 0)
-//						onBottom();
-//					scroll.onPlayerLand(this);
-//					onScroll(scroll);
-//				} else if(delta > height)
-//				{
-//					rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
-//				}
-//				break;
 		}
 	}
 
@@ -240,6 +225,10 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 			case Config.TAG_DANGER:
 				dead();
+				break;
+
+			case Config.TAG_COIN:
+				coll.GetComponent<Coin>().Eat();
 				break;
 		}
 	}
