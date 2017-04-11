@@ -130,7 +130,6 @@ public class CharacterGroup : MonoBehaviour {
 		for(int i = 0; i < _character.Count; i++)
 		{
 			_lastList.Add(_character[i]);
-//			DestroyImmediate(_character[i].gameObject);
 		}
 		_character.Clear();
 

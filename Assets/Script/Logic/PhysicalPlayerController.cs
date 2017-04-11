@@ -93,6 +93,9 @@ public class PhysicalPlayerController : FeatureReactionBase
 		if(isDead)
 			return;
 
+		if(rb.velocity.y > 0.1f || rb.velocity.y < -0.1f)
+			isBottom = 0;
+
 		bool arrowChange = false;
 		if(Input.GetKeyDown(KeyCode.RightArrow))
 		{
@@ -149,7 +152,8 @@ public class PhysicalPlayerController : FeatureReactionBase
 					if(lastPlayerDirection != _playerDirection && !_lockPosture)
 						ani.play(Config.CharcterAction.Idle);
 					_idleTime += Time.deltaTime;
-					cam.correct(tf);
+					if(lastPlayerDirection !=  _playerDirection)
+						cam.correct(tf);
 				} else
 				{
 					_idleTime = 0;
