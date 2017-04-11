@@ -211,14 +211,14 @@ public class CharactersAction : MonoBehaviour
 
 	private void DoAlphaToEachSpr(SpriteRenderer spr, Collider2D sprCol, float endVal, float duration, out Tweener tweener)
 	{
-		tweener = ColorUtil.doFade(spr, endVal, duration).OnComplete(
-			() =>
-			{
-				if(spr.color.a < 0.5f)
-					sprCol.enabled = false;
-				else
-					sprCol.enabled = true;
-			});
+		tweener = ColorUtil.doFade(spr, endVal, duration);
+		if(sprCol != null)
+			tweener.OnComplete(() =>{
+					if(spr.color.a < 0.5f)
+						sprCol.enabled = false;
+					else
+						sprCol.enabled = true;
+				});
 	}
 }
 
