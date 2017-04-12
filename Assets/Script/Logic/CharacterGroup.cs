@@ -90,8 +90,7 @@ public class CharacterGroup : MonoBehaviour {
 		for(int i = 0; i < _character.Count; i++)
 		{
 			obj = _character[i].tf;
-			if(chars.Length != _character.Count)
-				return;
+
 			if(analyse.fontDatas.TryGetValue( System.Convert.ToInt32(chars[i]), out d))
 			{
 				obj.transform.localPosition = new Vector2(x + xOffset, -d._actualOffsetY+yOffset);
@@ -113,9 +112,9 @@ public class CharacterGroup : MonoBehaviour {
 	{
 		if(ignoreSame && _lastStr == contentStr)
 			return;
-		isCreating = true;
 		Vector2 lastPivot = pivot;
 		pivot = new Vector2(0, 1);
+		isCreating = true;
 		_lastStr = contentStr;
 		PrefabSetting settings = GlobalController.instance.prefabSetting;
 		Transform obj;
@@ -187,11 +186,9 @@ public class CharacterGroup : MonoBehaviour {
 		{
 			DestroyImmediate(_lastList[i].gameObject);
 		}
-
 		_textWidth = x;
 		pivot = lastPivot;
 		isCreating = false;
-		setPivot();
 	}
 
 	public void copy(GameObject before, GameObject cur)
