@@ -22,6 +22,20 @@ public class CharacterCell : MonoBehaviour
 	public void init()
 	{
 		CharacterHandler.instance.handlers.TryGetValue(fontData.id, out _onPlayerEnter);
+
+		CharacterColorData d;
+		if(CharacterColor.instance.colorDic.TryGetValue(fontData.id, out d))
+		{
+			GetComponent<SpriteRenderer>().color = d.color;
+		}
+
+		System.Action<CharacterCell> initHandler;
+		if(CharacterHandler.instance.inits.TryGetValue(fontData.id, out initHandler))
+		{
+			initHandler(this);
+		}
+
+
 	}
 
 
@@ -32,12 +46,9 @@ public class CharacterCell : MonoBehaviour
 		_curTween = tf.DOLocalMoveY (tf.localPosition.y + 5, 0.1f).SetLoops (2, LoopType.Yoyo);
 	}
 
-
-
-
 	public void onPlayerLand(PhysicalPlayerController pp)
 	{
-		CharacterHandler.instance.handlers.TryGetValue(fontData.id, out _onPlayerEnter);
+//		CharacterHandler.instance.handlers.TryGetValue(fontData.id, out _onPlayerEnter);
 		if(_onPlayerEnter != null)
 			_onPlayerEnter(pp, this);
 	}

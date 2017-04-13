@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using DG.Tweening;
 public class Monster : FeatureReactionBase {
 	public float gap;
 	private Coroutine _shootRoutine;
@@ -8,6 +8,13 @@ public class Monster : FeatureReactionBase {
 	{
 		init();
 		_shootRoutine = StartCoroutine(action());
+	}
+
+	public override void init()
+	{
+		base.init();
+		Setting s = GlobalController.instance.setting;
+		rb.gravityScale = s.playerG/s.g;
 	}
 
 	IEnumerator action()
@@ -33,7 +40,15 @@ public class Monster : FeatureReactionBase {
 
 	public override void dead()
 	{
-		base.dead();
+			isDead = true;
+			tf.GetComponent<Collider2D>().enabled = false;
+			Rigidbody2D rb = GetComponent<Rigidbody2D>();
+			rb.gravityScale = 0;
+			rb.velocity = Vector2.zero;
+			tf.DOMove(new Vector3(tf.position.x, tf.position.y+20), 0.3f).OnComplete(() =>
+			{
+				tf.DOMove(new Vector3(tf.position.x, -450), 1).SetDelay(1.0f);
+			});
 		StopCoroutine(_shootRoutine);
 	}
 }

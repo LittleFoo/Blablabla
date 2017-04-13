@@ -39,6 +39,7 @@ public class CharacterGroup : MonoBehaviour {
 		}
 		get{return _pivot;}
 	}
+	[SerializeField]
 	private char[] chars ;
 	[SerializeField]
 	private string _lastStr;
@@ -74,7 +75,7 @@ public class CharacterGroup : MonoBehaviour {
 	{
 		if(_character.Count == 0 || isCreating)
 			return;
-		chars = contentStr.ToCharArray();
+		
 		Transform obj;
 		FontData d;
 		float x = 0;
@@ -98,14 +99,14 @@ public class CharacterGroup : MonoBehaviour {
 			}
 		}
 
-		if(col == null)
-			col = gameObject.GetComponent<BoxCollider2D>();
-		
-		if(col == null)
-			col = gameObject.AddComponent<BoxCollider2D>();
-		col.size = new Vector2(_textWidth, analyse.lineHeight);
-		col.offset = new Vector2((0.5f - pivot.x)*_textWidth,  	(0.5f-pivot.y)*analyse.lineHeight);
-		col.isTrigger = true;
+//		if(col == null)
+//			col = gameObject.GetComponent<BoxCollider2D>();
+//		
+//		if(col == null)
+//			col = gameObject.AddComponent<BoxCollider2D>();
+//		col.size = new Vector2(_textWidth, analyse.lineHeight);
+//		col.offset = new Vector2((0.5f - pivot.x)*_textWidth,  	(0.5f-pivot.y)*analyse.lineHeight);
+//		col.isTrigger = true;
 	}
 
 	public void setTextInEditor(bool ignoreSame = true)

@@ -7,20 +7,19 @@ public class PhysicalPlayerController : FeatureReactionBase
 {
 	
 //	public CharacterAnimation ani;
-	public int isBottom;
+
 	public CameraScroll cam;
 	public bool _autoJump;
-
 	public bool autoJump
 	{
 		get{ return _autoJump; }
 		set
 		{
-			_autoJump = value;
-			if(_autoJump)
-				jumpHandler = autoJumpHandler;
-			else
-				jumpHandler = spaceJumpHandler;
+//			_autoJump = value;
+//			if(_autoJump)
+//				jumpHandler = autoJumpHandler;
+//			else
+//				jumpHandler = spaceJumpHandler;
 		}
 	}
 
@@ -35,6 +34,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 	private int _restrictDirection;
 	private bool _lockPosture;
 	private float _idleTime;
+	private bool _isSpaceDown = false;
 	private bool _setSpeedBeforeBottom = false;
 	public bool setSpeedBeforeBottom
 	{
@@ -57,26 +57,34 @@ public class PhysicalPlayerController : FeatureReactionBase
 			newAni.copy(ani);
 			ani = newAni;
 		}
-		Setting s = GlobalController.instance.setting;
-		rb.gravityScale = s.playerG/s.g;
-		_upSpeed = s.smallUpSpeed;
-		_moveSpeed = s.moveSpeed;
 
-		BoxCollider2D col = tf.GetComponent<BoxCollider2D>();
-		col.size = new Vector2(6, s.gridSize);
-		col.offset = new Vector2(0, s.gridSize*0.5f);
+		Setting s = GlobalController.instance.setting;
+		if(GlobalController.instance.curScene.underWater)
+		{
+			rb.gravityScale = 0;
+			_upSpeed = s.waterUpSpeed;
+			_moveSpeed = s.waterMoveSpeed;
+			jumpHandler = waterUpHandler;
+		}
+		else
+		{
+			rb.gravityScale = s.playerG/s.g;
+			_upSpeed = s.smallUpSpeed;
+			_moveSpeed = s.moveSpeed;
+			jumpHandler = spaceJumpHandler;
+		}
+
+		col = tf.GetComponent<BoxCollider2D>();
+		col.size = s.roleColliderSize;
+		col.offset = new Vector2(0, col.size.y*0.5f);
 		height = col.size.y*0.9f;
+
 
 		reboundReleaseDelay = new WaitForSeconds(s.reboundProtectTime);
 
 		ani.doJump();
 		_lockPosture = true;
 		initScaleX = Mathf.Abs(transform.lossyScale.x);
-
-		if(_autoJump)
-			jumpHandler = autoJumpHandler;
-		else
-			jumpHandler = spaceJumpHandler;
 
 		_lastPostion = tf.position;
 
@@ -140,7 +148,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 	
 		Config.Direction lastPlayerDirection = _playerDirection;
-		if(_restrictDirection == 0 && arrowChange)
+		if(_restrictDirection == 0 )
 			_playerDirection = _arrowStatus;
 			
 		switch(_playerDirection)
@@ -189,6 +197,8 @@ public class PhysicalPlayerController : FeatureReactionBase
 		}
 
 		_lastPostion = tf.position;
+
+
 	}
 
 	public void OnCollisionEnter2D(Collision2D coll)
@@ -202,7 +212,10 @@ public class PhysicalPlayerController : FeatureReactionBase
 				if(delta < 2)
 				{
 					if(isBottom <= 0)
+					{
 						onBottom();
+						tf.SetParent(obj.transform.parent, true);
+					}
 					cell.onPlayerLand(this);
 				} else if(delta > height)
 				{
@@ -210,6 +223,27 @@ public class PhysicalPlayerController : FeatureReactionBase
 					coll.transform.GetComponent<CharacterCell>().pushUp();
 				}
 				break;
+
+			case Config.TAG_MST:
+				hurt(1);
+				break;
+		}
+	}
+
+	public override void hurt(int power)
+	{
+		base.hurt(power);
+			col.isTrigger = true;
+			rb.constraints = RigidbodyConstraints2D.FreezeAll;
+		if(isDead)
+		{
+			ColorUtil.doFade(tf.GetComponent<SpriteRenderer>(), 0, 0.1f).SetLoops(6, LoopType.Yoyo);
+		}else
+		{
+			ColorUtil.doFade(tf.GetComponent<SpriteRenderer>(), 0, 0.1f).SetLoops(16, LoopType.Yoyo).OnComplete(()=>{
+				col.isTrigger = false;
+				rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+			});
 		}
 	}
 
@@ -219,9 +253,9 @@ public class PhysicalPlayerController : FeatureReactionBase
 	{
 		switch(coll.gameObject.tag)
 		{
-			case Config.TAG_GROUP:
-				tf.SetParent(coll.transform, true);
-				break;
+//			case Config.TAG_GROUP:
+//				tf.SetParent(coll.transform, true);
+//				break;
 
 			case Config.TAG_DANGER:
 				dead();
@@ -234,11 +268,11 @@ public class PhysicalPlayerController : FeatureReactionBase
 	}
 
 
-	public void OnTriggerExit2D(Collider2D coll)
-	{
-		if(coll.transform == tf.parent)
-			tf.SetParent(null, true);
-	}
+//	public void OnTriggerExit2D(Collider2D coll)
+//	{
+//		if(coll.transform == tf.parent)
+//			tf.SetParent(null, true);
+//	}
 
 	public override void dead()
 	{
@@ -259,9 +293,11 @@ public class PhysicalPlayerController : FeatureReactionBase
 	{
 		isBottom = 0;
 		_playerDirection = dir;
+
 		rb.velocity = GlobalController.instance.setting.angleBlanketReboundParam;
 		_moveSpeed = GlobalController.instance.setting.angleBlanketReboundParam.x;
 		ani.play(Config.CharcterAction.Jump);
+
 		_restrictDirection++;
 		releaseAfterReboundRoutine = StartCoroutine(releaseAfterRebound());
 	}
@@ -348,10 +384,27 @@ public class PhysicalPlayerController : FeatureReactionBase
 			rb.velocity = new Vector2(rb.velocity.x, _upSpeed);
 			ani.doJump();
 		}
+	}
+
+	private void waterUpHandler()
+	{
+		if(Input.GetKeyDown(KeyCode.Space))
+		{
+			_isSpaceDown = true;
+		}
 
 		if(Input.GetKeyUp(KeyCode.Space))
 		{
+			_isSpaceDown = false;
+			rb.velocity = new Vector2(rb.velocity.x, 0);
 		}
+
+		if(_isSpaceDown)
+		{
+			rb.velocity = new Vector2(rb.velocity.x, _upSpeed);
+		}
+		else
+			rb.velocity = new Vector2(rb.velocity.x, -_upSpeed);
 	}
 
 	void onBottom()

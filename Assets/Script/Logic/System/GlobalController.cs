@@ -6,6 +6,7 @@ public class GlobalController : MonoBehaviour {
 
 	public PrefabSetting prefabSetting;
 	public Setting setting;
+	public SceneSetting curScene;
 	private SpawnPool _pool;
 
 	private static GlobalController _instance;
@@ -13,7 +14,10 @@ public class GlobalController : MonoBehaviour {
 	{
 		get{
 			if(_instance == null)
+			{
 				_instance = FindObjectOfType<GlobalController>();
+				_instance.init(); 
+			}
 			return _instance;
 		}
 	}
@@ -21,17 +25,15 @@ public class GlobalController : MonoBehaviour {
 
 	void Awake () {
 		if(_instance != null) 
-			throw new System.Exception("GlobalController is a singleton");
-		
+			return;
 		_instance = this;
+		init();
+	}
 
+	void init()
+	{
 		Application.targetFrameRate = 60;
-
 		setting.init();
-
-
-
-//		CharacterCell.initHandler();
 	}
 	
 	// Update is called once per frame

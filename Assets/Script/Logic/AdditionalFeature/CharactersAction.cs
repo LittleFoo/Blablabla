@@ -31,6 +31,9 @@ public class CharactersAction : MonoBehaviour
 				action.loop = int.MaxValue;
 			}
 
+			if(action.pauseTime2 == -1)
+				action.pauseTime2 = action.pauseTime;
+
 			Sequence s;
 			Tweener tweener;
 			switch(action.actionType)
@@ -41,9 +44,9 @@ public class CharactersAction : MonoBehaviour
 					if(cg == null)
 					{
 						SpriteRenderer spr;
-						Collider2D sprCol;
+						Collider2D[] sprCol;
 						spr = tf.GetComponent<SpriteRenderer>();
-						sprCol = tf.GetComponent<Collider2D>();
+						sprCol = tf.GetComponents<Collider2D>();
 						ColorUtil.toAlpha(spr, action.startAlpha);
 //					ColorUtil.doFade(spr, action.endAlpha, action.duration).SetLoops(action.loop,LoopType.Yoyo).OnStepComplete(
 //						()=>{
@@ -64,7 +67,7 @@ public class CharactersAction : MonoBehaviour
 							{
 								DoAlphaToEachSpr(spr, sprCol, action.startAlpha, action.duration, out tweener);
 								s.Append(tweener);
-								s.AppendInterval(action.pauseTime);
+								s.AppendInterval(action.pauseTime2);
 							}
 							s.SetLoops(action.loop);
 						} else
@@ -79,7 +82,7 @@ public class CharactersAction : MonoBehaviour
 						{
 							c = cg._character[j].tf;
 							SpriteRenderer cspr = c.GetComponent<SpriteRenderer>();
-							Collider2D csprCol = c.GetComponent<Collider2D>();
+							Collider2D[] csprCol = c.GetComponents<Collider2D>();
 
 							ColorUtil.toAlpha(cspr, action.startAlpha);
 							DoAlphaToEachSpr(cspr, csprCol, action.endAlpha, action.duration, out tweener);
@@ -102,7 +105,7 @@ public class CharactersAction : MonoBehaviour
 								{
 									DoAlphaToEachSpr(cspr, csprCol, action.startAlpha, action.duration, out tweener);
 									s.Append(tweener);
-									s.AppendInterval(action.pauseTime);
+									s.AppendInterval(action.pauseTime2);
 								}
 								s.SetLoops(action.loop);
 							} else
@@ -127,7 +130,7 @@ public class CharactersAction : MonoBehaviour
 						if(action.loopType == LoopType.Yoyo)
 						{
 							s.Append(tf.DOScale(action.startVal, action.duration));
-							s.AppendInterval(action.pauseTime);
+							s.AppendInterval(action.pauseTime2);
 						}
 						s.SetLoops(action.loop);
 					} else
@@ -149,7 +152,7 @@ public class CharactersAction : MonoBehaviour
 						if(action.loopType == LoopType.Yoyo)
 						{
 							s.Append(tf.DOLocalMove(action.startVal, action.duration));
-							s.AppendInterval(action.pauseTime);
+							s.AppendInterval(action.pauseTime2);
 						}
 						s.SetLoops(action.loop);
 					} else
@@ -171,7 +174,7 @@ public class CharactersAction : MonoBehaviour
 						if(action.loopType == LoopType.Yoyo)
 						{
 							s.Append(tf.DOLocalRotate(action.startVal, action.duration));
-							s.AppendInterval(action.pauseTime);
+							s.AppendInterval(action.pauseTime2);
 						}
 						s.SetLoops(action.loop);
 					} else
@@ -209,15 +212,17 @@ public class CharactersAction : MonoBehaviour
 	}
 
 
-	private void DoAlphaToEachSpr(SpriteRenderer spr, Collider2D sprCol, float endVal, float duration, out Tweener tweener)
+	private void DoAlphaToEachSpr(SpriteRenderer spr, Collider2D[] sprCols, float endVal, float duration, out Tweener tweener)
 	{
 		tweener = ColorUtil.doFade(spr, endVal, duration);
-		if(sprCol != null)
+		if(sprCols.Length > 0)
 			tweener.OnComplete(() =>{
 					if(spr.color.a < 0.5f)
-						sprCol.enabled = false;
+					for(int i = 0; i < sprCols.Length; i++)
+						sprCols[i].enabled = false;
 					else
-						sprCol.enabled = true;
+					for(int i = 0; i < sprCols.Length; i++)
+						sprCols[i].enabled = true;
 				});
 	}
 }
@@ -232,6 +237,7 @@ public class CharactersActionData
 	public LoopType loopType = LoopType.Yoyo;
 	public float delay;
 	public float pauseTime;
+	public float pauseTime2 = -1;
 	#region movement\scale\rotation
 
 	public Vector3 startVal;

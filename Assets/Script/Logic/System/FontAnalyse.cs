@@ -112,7 +112,7 @@ public class FontAnalyse : MonoBehaviour {
 		{
 			d = fontDataList[i];
 
-			d._actualOffsetY = d.yoffset-_minOffsety;
+			d._actualOffsetY = (d.yoffset-_minOffsety)/pixelPerUnit;
 			d.actualAdvance = ((d.xadvance+advanceAddition)/pixelPerUnit);
 			if(lineHeight < d._actualOffsetY+ d.height)
 				lineHeight = d._actualOffsetY+ d.height;
@@ -243,7 +243,7 @@ public class FontData
 	public float actualAdvance;
 	public Sprite spr;
 	public string Name;
-	public int _actualOffsetY;
+	public float _actualOffsetY;
 	public GameObject prefab;
 	public BoxCollider2D[] colList;
 }	

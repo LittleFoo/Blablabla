@@ -10,12 +10,20 @@ public class Setting : MonoBehaviour {
 	public float jumpTime = 0.5f;
 	public float moveSpeed = 100;
 
+	public int waterG = 5;
+	public float waterUpSpeed = 50;
+	public float waterMoveSpeed = 50;
+
 	//for test
 	public float bulletSpeed = 400;
 	public float bulletCD = 0.5f;
 
 	public Vector2 angleBlanketReboundParam;
 	public float reboundProtectTime = 0.3f;
+
+	public float numberDisappearTime = 1.0f;
+	public float underLineSpeed = 100;
+
 	private float _bigJumpTime;
 	public float bigJumpTime
 	{
