@@ -15,7 +15,6 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 
 	void Awake()
 	{
-		if(!mstData.isAvoidGap)
 			DistanceTriggerManager.instance.addEventListener(this);
 	}
 	public void Start()
@@ -207,7 +206,7 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		ColorUtil.doFade(tf.GetComponent<SpriteRenderer>(), 0, 0.5f);
 		col.enabled = false;
 		rb.constraints  = RigidbodyConstraints2D.FreezeAll;
-		common.TimerManager.instance.removeEventListeners(this);
+		OnDestroy();
 	}
 }
 

@@ -46,6 +46,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 	private float _bulletCD = 0;
 	private System.Action jumpHandler;
 	private BulletData bulletData;
+	private float minX, minY, maxX, maxY;
 
 	void Start()
 	{
@@ -103,7 +104,9 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 //		if(rb.velocity.y > 0.1f || rb.velocity.y < -0.1f)
 //			isBottom = 0;
-	
+
+		if(tf.position.x - maxX > 10 || tf.position.y -maxY > 10 || tf.position.y - minY < -10)
+			DistanceTriggerManager.instance.notice(tf.position);
 
 		bool arrowChange = false;
 		if(Input.GetKeyDown(KeyCode.RightArrow))

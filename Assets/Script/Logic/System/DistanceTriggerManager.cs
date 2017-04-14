@@ -44,7 +44,7 @@ public class DistanceTriggerManager : MonoBehaviour {
 	public void notice(Vector3 playerPos)
 	{
 		Vector3 pos;
-		float minX = playerPos.x - xOffset, maxX = playerPos.x + xOffset,minY = playerPos.y - yOffset, maxY = playerPos.y + yOffset;
+		float minX = playerPos.x - xOffset, maxX = playerPos.x + xOffset,minY = playerPos.y - yOffset + 12, maxY = playerPos.y + yOffset -12;
 
 		for(int i = triggers.Count-1; i > -1; i--)
 		{

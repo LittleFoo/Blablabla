@@ -12,6 +12,7 @@ public class CharacterGroupInspector : Editor {
 	
 		if (GUILayout.Button(new GUIContent("Alignment", "Click to alignment."), EditorStyles.toolbarButton))
 		{
+			SceneSetting scene = FindObjectOfType<SceneSetting>();
 			CharacterGroup[] groups = FindObjectsOfType<CharacterGroup>();
 			FontAnalyse font;
 			FontData d;
@@ -30,8 +31,30 @@ public class CharacterGroupInspector : Editor {
 					num = Mathf.Floor(HCenterY /gridSize);
 					desY = num*gridSize+gridSize*0.5f - HCenterY;
 					groups[i].transform.position = new Vector3(groups[i].transform.position.x,groups[i].transform.position.y + desY,groups[i].transform.position.z);
+
+					desY = groups[i].transform.position.x - groups[i].pivot.x* groups[i].textWidth;
+					if(desY < scene.boundsX.x)
+						scene.boundsX.x = desY;
+
+					desY = groups[i].transform.position.x +( 1- groups[i].pivot.x)* groups[i].textWidth;
+					if(desY > scene.boundsX.y)
+						scene.boundsX.y = desY;
+
+					desY = groups[i].transform.position.y - groups[i].pivot.y* groups[i].analyse.lineHeight;
+					if(desY < scene.boundsY.x)
+						scene.boundsY.x = desY;
+
+					desY = groups[i].transform.position.y +( 1- groups[i].pivot.y)* groups[i].analyse.lineHeight;
+					if(desY > scene.boundsY.y)
+						scene.boundsY.y = desY;
+						
 				}
 			}
+
+			scene.boundsX.x -= GlobalController.instance.setting.gridSize;
+			scene.boundsX.y += GlobalController.instance.setting.gridSize;
+			scene.boundsY.x -= GlobalController.instance.setting.gridSize;
+			scene.boundsY.y += GlobalController.instance.setting.gridSize;
 		}
 
 		script.contentStr = EditorGUILayout.TextField("contentStr", script.contentStr);
