@@ -18,11 +18,24 @@ public class Setting : MonoBehaviour {
 	public float bulletSpeed = 400;
 	public float bulletCD = 0.5f;
 
+	//角括号反弹速度
 	public Vector2 angleBlanketReboundParam;
+	//反弹保护时间
 	public float reboundProtectTime = 0.3f;
-
+	//数字消失时间
 	public float numberDisappearTime = 1.0f;
+	//下划线移动速度
 	public float underLineSpeed = 100;
+	//大括号间隔
+	public float braceTimeMoveGap = 2;
+	//子弹弹跳高度
+	public float bulletBounceGrid = 2;
+	//子弹弹跳到最高点时间
+	public float bulletBounceTime = 1.5f;
+	//子弹弹跳高度
+	public float bulletBounceXspeed = -20;
+	//上发子弹间隔
+	public float atShootGap = 3;
 
 	private float _bigJumpTime;
 	public float bigJumpTime

@@ -173,7 +173,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 				rb.velocity = new Vector2(-_moveSpeed+additionSpeed, rb.velocity.y);
 				if(!_lockPosture && lastPlayerDirection != _playerDirection)
 					ani.play(Config.CharcterAction.Walk);
-				if(tf.lossyScale.x == initScaleX)
+				if(tf.lossyScale.x > 0)
 					tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 				_idleTime = 0;
 				cam.notice(tf.position-_lastPostion, tf, tf.localScale.x);
@@ -183,7 +183,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 				rb.velocity = new Vector2(_moveSpeed+additionSpeed, rb.velocity.y);
 				if(!_lockPosture && lastPlayerDirection != _playerDirection)
 					ani.play(Config.CharcterAction.Walk);
-				if(tf.lossyScale.x != initScaleX)
+				if(tf.lossyScale.x < 0)
 					tf.localScale = new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
 				_idleTime = 0;
 				cam.notice(tf.position-_lastPostion, tf, tf.localScale.x);
@@ -447,9 +447,15 @@ public class PhysicalPlayerController : FeatureReactionBase
 		_bulletCD = GlobalController.instance.setting.bulletCD;
 
 		Bullet bullet = GlobalController.instance.getCurPool().Spawn(GlobalController.instance.prefabSetting.bullet).GetComponent<Bullet>();
-		bullet.init(tf.position, 
-			(_playerDirection != Config.Direction.None)?_playerDirection:((initScaleX == tf.lossyScale.x)?Config.Direction.Right:Config.Direction.Left),
-			bulletData
-		);
+	
+		Config.Direction dir = (initScaleX > 0)?Config.Direction.Right:Config.Direction.Left;
+		Vector3 pos;
+		if(dir == Config.Direction.Left)
+		{
+			pos = new Vector3(tf.position.x - GlobalController.instance.setting.gridSize, tf.position.y + col.offset.y, 0);
+		}
+		else
+			pos = new Vector3(tf.position.x + GlobalController.instance.setting.gridSize, tf.position.y + col.offset.y, 0);
+		bullet.init(pos, dir,bulletData);
 	}
 }

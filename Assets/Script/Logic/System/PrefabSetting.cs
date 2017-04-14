@@ -13,6 +13,7 @@ public class PrefabSetting : MonoBehaviour {
 	public GameObject charPrefab1;
 	public GameObject charPrefab2;
 	public Transform bullet;
+	public Transform bounceBullet;
 	public Texture2D scrollUnitTexture;
 	public void Awake()
 	{

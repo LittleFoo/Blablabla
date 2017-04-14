@@ -32,10 +32,15 @@ public class Monster : FeatureReactionBase {
 		d.speed = GlobalController.instance.setting.bulletSpeed;
 
 		Bullet bullet = GlobalController.instance.getCurPool().Spawn(GlobalController.instance.prefabSetting.bullet).GetComponent<Bullet>();
-		bullet.init(tf.position, 
-			(tf.lossyScale.x > 0)?Config.Direction.Right:Config.Direction.Left,
-			d
-		);
+		Config.Direction dir = (tf.lossyScale.x > 0)?Config.Direction.Right:Config.Direction.Left;
+		Vector3 pos;
+		if(dir == Config.Direction.Left)
+		{
+			pos = new Vector3(tf.position.x - GlobalController.instance.setting.gridSize, tf.position.y + col.offset.y, 0);
+		}
+		else
+			pos = new Vector3(tf.position.x + GlobalController.instance.setting.gridSize, tf.position.y + col.offset.y, 0);
+		bullet.init(pos, dir,d);
 	}
 
 	public override void dead()

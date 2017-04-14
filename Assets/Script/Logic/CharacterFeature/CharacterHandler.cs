@@ -36,6 +36,9 @@ public class CharacterHandler : MonoBehaviour {
 			inits.Add(49 +i, numberInit);
 		}
 		inits.Add(95, underLineInit);
+		inits.Add(123, leftBraceInit);
+		inits.Add(125, rightBraceInit);
+		inits.Add(38, atInit);
 	}
 
 	public static void angleBracketLeftTrigger (PhysicalPlayerController pp, CharacterCell cell)
@@ -75,14 +78,26 @@ public class CharacterHandler : MonoBehaviour {
 		action.trigger(Config.ActionTriggerCondition.Awake);
 	}
 
-	public static void braceInit(CharacterCell cell)
+	public static void leftBraceInit(CharacterCell cell)
 	{
-		
+		BraceFeature b = cell.tf.gameObject.AddComponent<BraceFeature>();
+		b.direction = Config.Direction.Left;
+	}
+
+	public static void rightBraceInit(CharacterCell cell)
+	{
+		BraceFeature b = cell.tf.gameObject.AddComponent<BraceFeature>();
+		b.direction = Config.Direction.Right;
 	}
 
 	public static void underLineInit(CharacterCell cell)
 	{
 		cell.gameObject.AddComponent<UnderLineMove>();
+	}
+
+	public static void atInit(CharacterCell cell)
+	{
+		cell.gameObject.AddComponent<AtShootFeature>();
 	}
 
 	public static void underLineTriggerHandler(PhysicalPlayerController pp, CharacterCell cell)
