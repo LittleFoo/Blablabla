@@ -21,14 +21,14 @@ public class Trigger : MonoBehaviour {
 			d = triggerDataList[i];
 			switch( d.triggerCondition)
 			{
-				case Config.ActionTriggerCondition.OnCollider:
+				case Config.TriggerCondition.OnCollider:
 					topTriggers.Add(d);
 					bottomTriggers.Add(d);
 					break;
-				case Config.ActionTriggerCondition.OnTop:
+				case Config.TriggerCondition.OnTop:
 					topTriggers.Add(d);
 					break;
-				case Config.ActionTriggerCondition.OnBottom:	
+				case Config.TriggerCondition.OnBottom:	
 					bottomTriggers.Add(d);
 					break;
 			}
@@ -81,6 +81,6 @@ public class TriggerData
 {
 	public Transform triggerObj;
 	public Config.TriggerType triggerType;
-	public Config.ActionTriggerCondition triggerCondition;
+	public Config.TriggerCondition triggerCondition;
 	public bool isTriggered = false;
 }

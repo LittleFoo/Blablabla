@@ -6,7 +6,8 @@ public class Config {
 	public enum CharcterAction{Walk, Idle, IdleRandom, Jump, JumpLoop, Crash, squat}
 	public enum ColliderAction{Movement, Rotation, Scale, Alpha}
 	public enum Pivot{TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom, BottomRight}
-	public enum ActionTriggerCondition{Awake, OnCollider, OnBottom, OnTop, TriggerByOthers = 98}
+	public enum ActionTriggerCondition{Awake, OnCollider, TriggerByOthers = 98}
+	public enum TriggerCondition{ OnCollider, OnBottom, OnTop}
 	public enum ReactionType{Null, Normal, Ice, Scroll}
 	public enum TriggerType{Action}
 	public const string TAG_PLAYER = "Player";

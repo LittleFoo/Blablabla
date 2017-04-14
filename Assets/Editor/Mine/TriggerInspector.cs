@@ -159,7 +159,7 @@ public class TriggerInspector : Editor {
 
 				// Display Fields Dynamically
 				PGEditorUtils.FieldInfoField<TriggerData>(item, type.GetField("triggerObj"));
-				item.triggerCondition = PGEditorUtils.EnumPopup<Config.ActionTriggerCondition>("Condition", item.triggerCondition);
+				item.triggerCondition = PGEditorUtils.EnumPopup<Config.TriggerCondition>("Condition", item.triggerCondition);
 				item.triggerType = PGEditorUtils.EnumPopup<Config.TriggerType>("Type", item.triggerType);
 
 				GUILayout.Space(2);

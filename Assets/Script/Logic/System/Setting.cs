@@ -10,7 +10,6 @@ public class Setting : MonoBehaviour {
 	public float jumpTime = 0.5f;
 	public float moveSpeed = 100;
 
-	public int waterG = 5;
 	public float waterUpSpeed = 50;
 	public float waterMoveSpeed = 50;
 
