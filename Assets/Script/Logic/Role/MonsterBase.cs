@@ -1,17 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MonsterBase : FeatureReactionBase, common.ITimerEvent
+public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTrigger
 {
 	public MonsterData mstData;
 	private System.Action _movePattern;
-	private float centerY;
+	public float centerY;
 	private float topY;
 	private float lastSpeed;
 	private float minX;
 	private float maxX;
 	private CharacterGroup root;
 	private Collision2D lastCollistion;
+
+	void Awake()
+	{
+		if(!mstData.isAvoidGap)
+			DistanceTriggerManager.instance.addEventListener(this);
+	}
 	public void Start()
 	{
 		init();
@@ -19,6 +25,7 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent
 
 	public override void init()
 	{
+		tf = transform;
 		isDead = false;
 
 		ani.copy(mstData.ani);
@@ -42,20 +49,37 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent
 			lastSpeed = mstData.speedx;
 		else
 			lastSpeed = -mstData.speedx;
-		_movePattern = recycleMove;
+		if(mstData.isAvoidGap)
+			_movePattern = recycleMove;
+		else
+			_movePattern = sillyMove;
 
-		trigger();
+	}
+	public void OnDestroy()
+	{
+		DistanceTriggerManager.instance.removeEventListener(this);
+		common.TimerManager.instance.removeEventListeners(this);
 	}
 
 	public void onUpdate()
 	{
 		_movePattern();
+
+		if(rb.velocity.y < 0 && tf.position.y < GlobalController.instance.curScene.boundsY.x)
+		{
+			dead();
+		}
 	}
 
 	public void trigger()
 	{
 		common.TimerManager.instance.addEventListeners(this);
 		rb.velocity = new Vector2(lastSpeed, 0);
+	}
+
+	public Vector3 getPosition()
+	{
+		return tf.position;
 	}
 
 	public void OnCollisionEnter2D(Collision2D coll)
@@ -85,11 +109,6 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent
 		rb.velocity = new Vector2(lastSpeed, 0);
 		ani.play(Config.CharcterAction.Walk);
 		setScale();
-	}
-
-	public void OnDestroy()
-	{
-		common.TimerManager.instance.removeEventListeners(this);
 	}
 
 
@@ -180,6 +199,15 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent
 			tf.localScale = new Vector3(Mathf.Abs(tf.localScale.x), tf.localScale.y, 1);
 		else
 			tf.localScale = new Vector3(-Mathf.Abs(tf.localScale.x), tf.localScale.y, 1);
+	}
+
+	public override void dead()
+	{
+		base.dead();
+		ColorUtil.doFade(tf.GetComponent<SpriteRenderer>(), 0, 0.5f);
+		col.enabled = false;
+		rb.constraints  = RigidbodyConstraints2D.FreezeAll;
+		common.TimerManager.instance.removeEventListeners(this);
 	}
 }
 

@@ -8,7 +8,6 @@ public class FeatureReactionBase : MonoBehaviour {
 	public CharacterAnimation ani;
 	[HideInInspector]
 	public Transform tf;
-	[HideInInspector]
 	public int isBottom;
 	public Rigidbody2D rb;
 	protected bool isDead = false;

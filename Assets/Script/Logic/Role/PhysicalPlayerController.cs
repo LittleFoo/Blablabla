@@ -101,8 +101,9 @@ public class PhysicalPlayerController : FeatureReactionBase
 		if(isDead)
 			return;
 
-		if(rb.velocity.y > 0.1f || rb.velocity.y < -0.1f)
-			isBottom = 0;
+//		if(rb.velocity.y > 0.1f || rb.velocity.y < -0.1f)
+//			isBottom = 0;
+	
 
 		bool arrowChange = false;
 		if(Input.GetKeyDown(KeyCode.RightArrow))
@@ -216,7 +217,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 						onBottom();
 						tf.SetParent(obj.transform.parent, true);
 					}
-					cell.onPlayerLand(this);
+						cell.onPlayerLand(this);
 				} else if(delta > height)
 				{
 					rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
@@ -225,9 +226,23 @@ public class PhysicalPlayerController : FeatureReactionBase
 				break;
 
 			case Config.TAG_MST:
-				hurt(1);
+				MonsterBase mst = obj.GetComponent<MonsterBase>();
+
+				if(tf.position.y > mst.tf.position.y + mst.centerY)
+				{
+					mst.hurt(999);
+					rb.velocity = new Vector2(rb.velocity.x, - rb.velocity.y);
+				}
+				else
+					hurt(1);
 				break;
 		}
+	}
+
+	public void OnCollisionExit2D(Collision2D coll)
+	{
+		if(coll.transform == tf.parent)
+			isBottom = 0;
 	}
 
 	public override void hurt(int power)
@@ -276,6 +291,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 	public override void dead()
 	{
+		tf.parent = null;
 		isDead = true;
 		tf.GetComponent<Collider2D>().enabled = false;
 		rb.gravityScale = 0;

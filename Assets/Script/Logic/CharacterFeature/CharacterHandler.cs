@@ -72,7 +72,7 @@ public class CharacterHandler : MonoBehaviour {
 		d.pauseTime2 = int.Parse( cell.fontData.Name);
 		d.loopType = LoopType.Yoyo;
 		d.delay = d.pauseTime2;
-		d.loop = -1;
+		d.loop = 1;
 		action.actionDataList.Add(d);
 
 		action.trigger(Config.ActionTriggerCondition.Awake);
