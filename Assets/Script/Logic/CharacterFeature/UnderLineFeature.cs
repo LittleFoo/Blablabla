@@ -1,18 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UnderLineMove : MonoBehaviour, common.ITimerEvent {
+public class UnderLineMove : MonoBehaviour, common.ITimerEvent, IAwake {
 
 	// Use this for initialization
 	public Transform tf;
 	private Vector3 _speed;
 	private float nextSpeed;
 	private float centerX;
-	void Start () {
-		common.TimerManager.instance.addEventListeners(this);
-		_speed = new Vector3( GlobalController.instance.setting.underLineSpeed, 0, 0);
+	void Awake()
+	{
 		tf = transform;
+	}
+	void Start () {
+		_speed = new Vector3( GlobalController.instance.setting.underLineSpeed, 0, 0);
+
 		centerX = GetComponent<BoxCollider2D>().offset.x;
+		AwakeManager.instance.addEventListener(this);
+	}
+
+	public void onAwake()
+	{
+		common.TimerManager.instance.addEventListeners(this);
 	}
 	
 	// Update is called once per frame

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 
-public class CharactersAction : MonoBehaviour
+public class CharactersAction : MonoBehaviour,IAwake
 {
 	public Dictionary<object, bool> _editorListItemStates = new Dictionary<object, bool>();
 	public List<CharactersActionData> actionDataList = new List<CharactersActionData>();
@@ -12,6 +12,15 @@ public class CharactersAction : MonoBehaviour
 	void Awake()
 	{
 		tf = transform;
+	}
+
+	void Start()
+	{
+		AwakeManager.instance.addEventListener(this);
+	}
+
+	public void onAwake()
+	{
 		trigger(Config.ActionTriggerCondition.Awake);
 	}
 

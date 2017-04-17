@@ -8,7 +8,22 @@ public class CharacterColor : MonoBehaviour {
 	private static CharacterColor _instance;
 	public static CharacterColor instance
 	{
-		get{return _instance;}
+		get{
+			if(_instance == null)
+			{
+				_instance = GameObject.FindObjectOfType<CharacterColor>();
+				if(_instance == null)
+					return null;
+				for(int i = 0; i < _instance.characterList.Count; i++)
+				{
+					for(int j = 0; j < _instance.characterList[i].assicIds.Count; j++)
+					{
+						_instance.colorDic.Add(_instance.characterList[i].assicIds[j], _instance.characterList[i]);
+					}
+				}
+			}
+			return _instance;
+		}
 	}
 
 	void Awake()

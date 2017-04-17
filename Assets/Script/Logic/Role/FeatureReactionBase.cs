@@ -11,6 +11,8 @@ public class FeatureReactionBase : MonoBehaviour {
 	public int isBottom;
 	public Rigidbody2D rb;
 	protected bool isDead = false;
+	protected float _gravityScale;
+
 	protected Config.ReactionType lastTriggerType = Config.ReactionType.Null;
 	void Awake()
 	{

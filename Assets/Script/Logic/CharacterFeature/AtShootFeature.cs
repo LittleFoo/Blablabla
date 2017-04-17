@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using DG.Tweening;
-public class AtShootFeature : MonoBehaviour {
+public class AtShootFeature : MonoBehaviour, IAwake {
 
 	// Use this for initialization
 	private Vector3 topOffset;
@@ -27,6 +27,12 @@ public class AtShootFeature : MonoBehaviour {
 		initVelocity = new Vector2(s.bulletBounceXspeed, realG*s.bulletBounceTime);
 		bulletData = new BulletData();
 
+		AwakeManager.instance.addEventListener(this);
+//		_curRoutine = StartCoroutine(move());
+	}
+
+	public void onAwake()
+	{
 		_curRoutine = StartCoroutine(move());
 	}
 	

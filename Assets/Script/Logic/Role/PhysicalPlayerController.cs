@@ -3,7 +3,7 @@ using System.Collections;
 using DG.Tweening;
 using PathologicalGames;
 
-public class PhysicalPlayerController : FeatureReactionBase
+public class PhysicalPlayerController : FeatureReactionBase, common.ITimerEvent, IAwake
 {
 	
 //	public CharacterAnimation ani;
@@ -50,7 +50,6 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 	void Start()
 	{
-		
 		cam = Camera.main.GetComponent<CameraScroll>();
 		if(ani != null)
 		{
@@ -59,17 +58,18 @@ public class PhysicalPlayerController : FeatureReactionBase
 			ani = newAni;
 		}
 
+		rb.gravityScale = 0;
 		Setting s = GlobalController.instance.setting;
 		if(GlobalController.instance.curScene.underWater)
 		{
-			rb.gravityScale = 0;
+			_gravityScale = 0;
 			_upSpeed = s.waterUpSpeed;
 			_moveSpeed = s.waterMoveSpeed;
 			jumpHandler = waterUpHandler;
 		}
 		else
 		{
-			rb.gravityScale = s.playerG/s.g;
+			_gravityScale = s.playerG/s.g;
 			_upSpeed = s.smallUpSpeed;
 			_moveSpeed = s.moveSpeed;
 			jumpHandler = spaceJumpHandler;
@@ -83,7 +83,7 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 		reboundReleaseDelay = new WaitForSeconds(s.reboundProtectTime);
 
-		ani.doJump();
+		ani.play(Config.CharcterAction.Idle);
 		_lockPosture = true;
 		initScaleX = Mathf.Abs(transform.lossyScale.x);
 
@@ -93,11 +93,19 @@ public class PhysicalPlayerController : FeatureReactionBase
 
 		bulletData = new BulletData();
 		bulletData.speed = GlobalController.instance.setting.bigUpSpeed;
+
+		AwakeManager.instance.addEventListener(this);
+	}
+
+	public void onAwake()
+	{
+		rb.gravityScale = _gravityScale;
+		common.TimerManager.instance.addEventListeners(this);
+		DistanceTriggerManager.instance.notice(tf.position);
 	}
 
 	private Vector3 _lastPostion;
-
-	void Update()
+	public void onUpdate()
 	{
 		if(isDead)
 			return;

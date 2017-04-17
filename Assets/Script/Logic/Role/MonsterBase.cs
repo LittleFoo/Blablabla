@@ -11,12 +11,13 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 	private float minX;
 	private float maxX;
 	private CharacterGroup root;
-	private Collision2D lastCollistion;
-
+	private Collider2D lastCollistion;
 	void Awake()
 	{
-			DistanceTriggerManager.instance.addEventListener(this);
+		tf = transform;
+		DistanceTriggerManager.instance.addEventListener(this);
 	}
+
 	public void Start()
 	{
 		init();
@@ -24,7 +25,7 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 
 	public override void init()
 	{
-		tf = transform;
+	
 		isDead = false;
 
 		ani.copy(mstData.ani);
@@ -33,31 +34,34 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		col.size = mstData.col.size;
 		col.offset = mstData.col.offset;
 
+		rb.gravityScale = 0;
+
 		Setting s = GlobalController.instance.setting;
 		if(GlobalController.instance.curScene.underWater)
 		{
-			rb.gravityScale = 0;
+			_gravityScale = 0;
 		} else
 		{
-			rb.gravityScale = s.playerG/s.g;
+			_gravityScale = s.playerG / s.g;
 		}
 
-		centerY = col.size.y*0.5f;
+		centerY = col.size.y * 0.5f;
 		topY = col.size.y;
-		if(tf.lossyScale.x > 0)
-			lastSpeed = mstData.speedx;
-		else
-			lastSpeed = -mstData.speedx;
+		lastSpeed = 0;
 		if(mstData.isAvoidGap)
 			_movePattern = recycleMove;
 		else
 			_movePattern = sillyMove;
 
 	}
-	public void OnDestroy()
+
+	public void OnDisable()
 	{
+#if UNITY_EDITOR
+#else
 		DistanceTriggerManager.instance.removeEventListener(this);
 		common.TimerManager.instance.removeEventListeners(this);
+#endif
 	}
 
 	public void onUpdate()
@@ -72,8 +76,14 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 
 	public void trigger()
 	{
+		if(tf.lossyScale.x > 0)
+			lastSpeed = mstData.speedx;
+		else
+			lastSpeed = -mstData.speedx;
+		rb.gravityScale = _gravityScale;
 		common.TimerManager.instance.addEventListeners(this);
 		rb.velocity = new Vector2(lastSpeed, 0);
+		ani.play(Config.CharcterAction.Walk);
 	}
 
 	public Vector3 getPosition()
@@ -83,22 +93,53 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 
 	public void OnCollisionEnter2D(Collision2D coll)
 	{
-		lastCollistion = coll;
-		switch(coll.gameObject.tag)
+		lastCollistion = coll.collider;
+
+		GameObject obj = coll.gameObject;
+		switch(obj.tag)
 		{
-			case Config.TAG_CHAR:
+		case Config.TAG_CHAR:
 				
-				if(isBottom > 0)
-					return;
-				float delta = coll.contacts[0].point.y-(tf.position.y+centerY);
-				if(delta < 0)
+			if(isBottom > 0)
+				return;
+			float delta = coll.contacts[0].point.y - (tf.position.y + centerY);
+			if(delta < 0)
+			{
+
+				CharacterCell cell = obj.GetComponent<CharacterCell>();
+				if(cell.fontData.id == 95)
+				{
+					minX = 0;
+					maxX = cell.fontData._actualWidth;
+				} else
 				{
 					root = coll.transform.parent.GetComponent<CharacterGroup>();
-					minX = root.transform.position.x-root.pivot.x*root.textWidth;
-					maxX = minX+root.textWidth;
-					onBottom();
-				} 
-				break;
+					minX = -root.pivot.x * root.textWidth;
+					maxX = minX + root.textWidth;
+
+					int curCharIdx = root._character.IndexOf(cell);
+					for(int i = curCharIdx-1; i > -1; i--)
+					{
+						if(root._character[i].fontData.id == 32 || root._character[i].fontData.id == 95)
+						{
+							minX = root._character[i].tf.localPosition.x + root._character[i].fontData._actualWidth;
+							break;
+						}
+					}
+
+					for(int i = curCharIdx+1; i < root._character.Count; i++)
+					{
+						if(root._character[i].fontData.id == 32 || root._character[i].fontData.id == 95)
+						{
+							maxX = root._character[i].tf.localPosition.x;
+							break;
+						}
+					}
+				}	
+				onBottom();
+				tf.SetParent(obj.transform.parent, true);
+			} 
+			break;
 		}
 	}
 
@@ -106,10 +147,9 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 	{
 		isBottom = 1;
 		rb.velocity = new Vector2(lastSpeed, 0);
-		ani.play(Config.CharcterAction.Walk);
+//		ani.play(Config.CharcterAction.Walk);
 		setScale();
 	}
-
 
 	private bool _justChange = false;
 
@@ -122,10 +162,10 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 			if(_justChange)
 			{
 				_justChange = false;
-			} else if(tf.position.x > maxX || tf.position.x < minX)
+			} else if(tf.localPosition.x > maxX || tf.localPosition.x < minX)
 			{
 				_justChange = true;
-				lastSpeed = -lastSpeed;
+					lastSpeed = -lastSpeed;
 				rb.velocity = new Vector2(lastSpeed, rb.velocity.y);
 				setScale();
 			}	
@@ -133,6 +173,7 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 	}
 
 	private int correctTime = 0;
+
 	private void sillyMove()
 	{
 		if(rb.velocity.y < -0.1f)
@@ -147,8 +188,7 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		{
 			correctTime++;
 			correct();
-		}
-		else
+		} else
 		{
 			correctTime = 0;
 		}
@@ -157,22 +197,21 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 	private void correct()
 	{
 		float cellbottomY;
-		float celltopY ;
+		float celltopY;
 		if(correctTime > 1)
 		{
 			lastSpeed = -lastSpeed;
-			rb.velocity = new Vector2(lastSpeed, rb.velocity.y);
+			rb.velocity = new Vector2(lastSpeed, rb.velocity.y );
+
 			setScale();
-		}
-		else
+		} else
 		{
 			if(lastCollistion != null)
 			{
 				GameObject obj = lastCollistion.gameObject;
-				BoxCollider2D objCol = obj.GetComponent<BoxCollider2D>();
 
-				cellbottomY = obj.transform.position.y-objCol.size.y*0.5f + objCol.offset.y;
-				celltopY = obj.transform.position.y+objCol.size.y*0.5f+ objCol.offset.y;
+				cellbottomY = lastCollistion.bounds.center.y - lastCollistion.bounds.extents.y;
+				celltopY = lastCollistion.bounds.center.y + lastCollistion.bounds.extents.y;
 
 				if(cellbottomY > tf.position.y + topY || celltopY < tf.position.y)
 				{
@@ -184,10 +223,10 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 					setScale();
 				}
 
-			}
-			else
+			} else
 			{
 				rb.velocity = new Vector2(lastSpeed, rb.velocity.y);
+				tf.localPosition += new Vector3(lastSpeed/Mathf.Abs(lastSpeed)*0.1f, 0, 0);
 			}
 		}
 	}
@@ -205,8 +244,8 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		base.dead();
 		ColorUtil.doFade(tf.GetComponent<SpriteRenderer>(), 0, 0.5f);
 		col.enabled = false;
-		rb.constraints  = RigidbodyConstraints2D.FreezeAll;
-		OnDestroy();
+		rb.constraints = RigidbodyConstraints2D.FreezeAll;
+		OnDisable();
 	}
 }
 

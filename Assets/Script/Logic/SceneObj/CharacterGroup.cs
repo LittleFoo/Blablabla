@@ -166,7 +166,14 @@ public class CharacterGroup : MonoBehaviour {
 				obj.tag = Config.TAG_CHAR;
 				obj.gameObject.layer = transform.gameObject.layer;
 				spr = obj.GetComponent<SpriteRenderer>();
-				spr.color = color;
+
+				CharacterColorData colorData;
+				if(CharacterColor.instance.colorDic.TryGetValue(d.id, out colorData))
+				{
+					spr.color = colorData.color;
+				}
+				else
+					spr.color = color;
 				spr.sortingOrder = 1;
 				obj.transform.SetParent(transform, false);
 				obj.name = chars[i].ToString();

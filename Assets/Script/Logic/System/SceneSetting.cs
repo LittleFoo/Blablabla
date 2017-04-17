@@ -5,10 +5,25 @@ public class SceneSetting : MonoBehaviour {
 	public bool underWater;
 	public Vector2 boundsX;
 	public Vector2 boundsY;
+	public bool isRunAtAwake = false;
 	void Awake()
 	{
 		GlobalController.instance.curScene = this;
+
+	}
+
+	void Start()
+	{
+		if(isRunAtAwake)
+			AwakeManager.instance.notice();
+		else
+			StartCoroutine(notice(2));
 	}
 
 
+	IEnumerator notice(float delay)
+	{
+		yield return new WaitForSeconds(delay);
+		AwakeManager.instance.notice();
+	}
 }
