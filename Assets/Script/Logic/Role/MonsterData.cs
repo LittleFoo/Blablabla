@@ -11,4 +11,5 @@ public class MonsterData: MonoBehaviour {
 		public float speedx2;
 		public float speedy;
 		public BoxCollider2D col;
+		public int hp;
 	}

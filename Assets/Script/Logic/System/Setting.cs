@@ -82,10 +82,13 @@ public class Setting : MonoBehaviour {
 		_screenWidth = Mathf.Ceil(screenWidth*1.0f/16)*16;
 		_screenHeight = screenWidth/16*9;
 
-		float rate = UIModule.instance.actualWidth/(UIModule.width * 1.0f / Screen.width * Screen.height);
+		float rate = UIModule.instance.actualWidth/UIModule.instance.actualHeight;
+		if(rate < 1)
+			rate = 16/9.0f;
 		_screenHeight = _screenWidth/rate;
 
 		Camera.main.orthographicSize = _screenHeight*0.5f;
+
 		print("screenW:"+screenWidth.ToString() +",screenHeight:"+screenHeight.ToString());
 	}
 }

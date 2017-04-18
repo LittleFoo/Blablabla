@@ -8,6 +8,7 @@ public class CharacterAnimation : MonoBehaviour {
 	public Sprite[] jumpLoop;
 	public Sprite[] idleRandom;
 	public Sprite[] crash;
+	public Sprite[] rush;
 	public SpriteAnimation ani;
 	public Config.CharcterAction lastAct;
 	// Use this for initialization
@@ -40,10 +41,14 @@ public class CharacterAnimation : MonoBehaviour {
 			ani._spriteList = jumpLoop;
 			break;
 
+		case Config.CharcterAction.Rush:
+			ani._spriteList = rush;
+			break;
+
 		case Config.CharcterAction.Crash:
 			ani._spriteList = crash;
 			break;
-
+		
 		}
 
 		ani.play(-1);

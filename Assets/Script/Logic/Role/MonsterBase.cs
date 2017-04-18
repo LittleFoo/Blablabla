@@ -34,6 +34,8 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		col.size = mstData.col.size;
 		col.offset = mstData.col.offset;
 
+		hp = mstData.hp;
+
 		rb.gravityScale = 0;
 
 		Setting s = GlobalController.instance.setting;
@@ -192,6 +194,11 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		{
 			correctTime = 0;
 		}
+	}
+
+	private void RebounceMove()
+	{
+
 	}
 		
 	private void correct()
