@@ -89,7 +89,7 @@ public class PhysicalPlayerController : FeatureReactionBase, common.ITimerEvent,
 
 		_lastPostion = tf.position;
 
-		cam.setPos(tf);
+		;
 
 		bulletData = new BulletData();
 		bulletData.speed = GlobalController.instance.setting.bigUpSpeed;
@@ -102,6 +102,7 @@ public class PhysicalPlayerController : FeatureReactionBase, common.ITimerEvent,
 		rb.gravityScale = _gravityScale;
 		common.TimerManager.instance.addEventListeners(this);
 		DistanceTriggerManager.instance.notice(tf.position);
+		cam.setPos(tf);
 	}
 
 	private Vector3 _lastPostion;

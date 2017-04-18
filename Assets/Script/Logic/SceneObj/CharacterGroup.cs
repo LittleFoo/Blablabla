@@ -63,7 +63,7 @@ public class CharacterGroup : MonoBehaviour {
 	}
 	private bool isCreating = false;
 
-	void Start () {
+	public void Start () {
 		gameObject.tag = Config.TAG_GROUP;
 		for(int i = 0; i < _character.Count; i++)
 		{

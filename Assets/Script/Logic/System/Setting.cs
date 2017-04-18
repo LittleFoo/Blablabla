@@ -77,9 +77,14 @@ public class Setting : MonoBehaviour {
 		_bigJumpTime = Mathf.Sqrt(jumpGridNum*gridSize*2/_playerG);
 		_bigUpSpeed =_playerG*bigJumpTime;
 
+
 		_screenWidth= Mathf.Ceil( gridSize*gridNum/9.0f*16);
 		_screenWidth = Mathf.Ceil(screenWidth*1.0f/16)*16;
 		_screenHeight = screenWidth/16*9;
+
+		float rate = UIModule.instance.actualWidth/UIModule.instance.actualHeight;
+		_screenHeight = _screenWidth/rate;
+
 		Camera.main.orthographicSize = _screenHeight*0.5f;
 		print("screenW:"+screenWidth.ToString() +",screenHeight:"+screenHeight.ToString());
 	}

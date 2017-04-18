@@ -33,6 +33,8 @@ public class GlobalController : MonoBehaviour {
 	void init()
 	{
 		Application.targetFrameRate = 60;
+
+		UIModule.instance.init();
 		setting.init();
 	}
 	

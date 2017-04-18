@@ -16,14 +16,19 @@ public class SceneSetting : MonoBehaviour {
 	{
 		if(isRunAtAwake)
 			AwakeManager.instance.notice();
-		else
-			StartCoroutine(notice(2));
+//		else
+//			StartCoroutine(notice(2));
 	}
 
 
 	IEnumerator notice(float delay)
 	{
 		yield return new WaitForSeconds(delay);
+		AwakeManager.instance.notice();
+	}
+
+	public void trigger()
+	{
 		AwakeManager.instance.notice();
 	}
 }

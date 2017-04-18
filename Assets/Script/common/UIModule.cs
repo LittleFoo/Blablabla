@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace common
-{
     public class UIModule
     {
-		public const int width = 1024;
-        public const int height = 768;
+		public const float width = 1024;
+	public const float height = 768;
 		public static bool matchWidth = true;
         private float _actualWidth = 1024;
         public float actualWidth {
@@ -53,9 +51,6 @@ namespace common
 				_actualHeight = height;
 			}
            
+		Debug.Log("actualWidth:" + _actualWidth.ToString() +",actualHeight:" + _actualHeight.ToString());
         }
-
-
-
     }
-}

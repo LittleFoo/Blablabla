@@ -12,6 +12,7 @@ public class UnderLineMove : MonoBehaviour, common.ITimerEvent, IAwake {
 	{
 		tf = transform;
 	}
+
 	void Start () {
 		_speed = new Vector3( GlobalController.instance.setting.underLineSpeed, 0, 0);
 

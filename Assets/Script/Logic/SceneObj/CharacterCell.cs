@@ -34,10 +34,7 @@ public class CharacterCell : MonoBehaviour
 		{
 			initHandler(this);
 		}
-
-
 	}
-
 
 	public void pushUp ()
 	{
