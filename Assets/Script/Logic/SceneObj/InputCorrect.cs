@@ -37,10 +37,14 @@ public class InputCorrect : MonoBehaviour {
 
 		bg.transform.localScale = new Vector2(width, height);
 		bg.transform.localPosition = new Vector3(maxWidth*0.5f, -GlobalController.instance.setting.gridSize*0.5f,0);
+
+		txt.onValueChanged.AddListener( onValChange);
+		txt.onEndEdit.AddListener(onInputEnd);
 	}
 
 	public void onValChange(string str)
 	{
+		str = txt.text;
 		if(lastContent == str)
 			return;
 
@@ -69,6 +73,7 @@ public class InputCorrect : MonoBehaviour {
 
 	public void onInputEnd(string str)
 	{
+		str = txt.text;
 		cg.Start();
 		bg.SetActive(false);
 		onExit();
