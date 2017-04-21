@@ -29,6 +29,7 @@ public class MonsterBase : FeatureReactionBase, common.ITimerEvent, IDistanceTri
 		isDead = false;
 
 		ani.copy(mstData.ani);
+		ani.addSprToDic();
 		ani.play(Config.CharcterAction.Idle);
 
 		col.size = mstData.col.size;

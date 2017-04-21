@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CharacterAnimation : MonoBehaviour {
 	public Sprite[] walk;
@@ -9,13 +10,22 @@ public class CharacterAnimation : MonoBehaviour {
 	public Sprite[] idleRandom;
 	public Sprite[] crash;
 	public Sprite[] rush;
+	public Sprite[] attack;
+	public Sprite[] attack1;
+	public Sprite[] attack2;
+	public Sprite[] attack3;
+	public Sprite[] attack4;
+
 	public SpriteAnimation ani;
+	public Dictionary<Config.CharcterAction, Sprite[]> actions = new Dictionary<Config.CharcterAction, Sprite[]>();
 	public Config.CharcterAction lastAct;
 	// Use this for initialization
 	void Awake () {
 		ani = gameObject.GetComponent<SpriteAnimation>();
 		if(ani == null)
 			ani = gameObject.AddComponent<SpriteAnimation>();
+
+
 	}
 	
 	public void play(Config.CharcterAction act)
@@ -23,34 +33,9 @@ public class CharacterAnimation : MonoBehaviour {
 		if(act == lastAct)
 			return;
 		lastAct = act;
-		switch(act)
-		{
-		case Config.CharcterAction.Idle:
-			ani._spriteList = idle;
-			break;
-
-		case Config.CharcterAction.Jump:
-			ani._spriteList = jump;
-			break;
-
-		case Config.CharcterAction.Walk:
-			ani._spriteList = walk;
-			break;
-
-		case Config.CharcterAction.JumpLoop:
-			ani._spriteList = jumpLoop;
-			break;
-
-		case Config.CharcterAction.Rush:
-			ani._spriteList = rush;
-			break;
-
-		case Config.CharcterAction.Crash:
-			ani._spriteList = crash;
-			break;
-		
-		}
-
+		Sprite[] sprs;
+		if(actions.TryGetValue(act, out sprs))
+			ani._spriteList = sprs;
 		ani.play(-1);
 	}
 
@@ -82,7 +67,22 @@ public class CharacterAnimation : MonoBehaviour {
 		jumpLoop = (Sprite[])ani.jumpLoop.Clone();
 		idleRandom = (Sprite[])ani.idleRandom.Clone();
 		crash = (Sprite[])ani.crash.Clone();
+	}
 
+	public void addSprToDic()
+	{
+		actions.Add(Config.CharcterAction.Walk, walk);
+		actions.Add(Config.CharcterAction.Idle, idle);
+		actions.Add(Config.CharcterAction.Jump, jump);
+		actions.Add(Config.CharcterAction.JumpLoop, jumpLoop);
+		actions.Add(Config.CharcterAction.IdleRandom, idleRandom);
+		actions.Add(Config.CharcterAction.Crash, crash);
+		actions.Add(Config.CharcterAction.Rush, rush);
+		actions.Add(Config.CharcterAction.Attack, attack);
+		actions.Add(Config.CharcterAction.Attack1, attack1);
+		actions.Add(Config.CharcterAction.Attack2, attack2);
+		actions.Add(Config.CharcterAction.Attack3, attack3);
+		actions.Add(Config.CharcterAction.Attack4, attack4);
 	}
 }
 

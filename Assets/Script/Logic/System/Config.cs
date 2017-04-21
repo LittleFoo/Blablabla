@@ -3,7 +3,8 @@ using System.Collections;
 
 public class Config {
 	public enum Direction{None, Top, Bottom, Left, Right}
-	public enum CharcterAction{Walk, Idle, IdleRandom, Jump, JumpLoop, Rush, Crash, Squat, Attack = 80, Attack1}
+	public enum CharcterAction{Walk, Idle, IdleRandom, Jump, JumpLoop, Rush, Crash, Squat,
+		Attack = 80, Attack1 = 81,Attack2 = 82,Attack3 = 83,Attack4 = 84,}
 	public enum ColliderAction{Movement, Rotation, Scale, Alpha}
 	public enum Pivot{TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom, BottomRight}
 	public enum ActionTriggerCondition{Awake, OnCollider, TriggerByOthers = 98}

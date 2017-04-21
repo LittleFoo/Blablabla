@@ -5,11 +5,11 @@ using PathologicalGames;
 
 public class Bullet : MonoBehaviour {
 
-	protected Transform tf;
-	protected SpriteRenderer spr;
-	protected BulletData _data;
+	Transform tf;
+	SpriteRenderer spr;
+	BulletData _data;
 	private Tweener _curTween;
-	public virtual void init(Vector3 position, Config.Direction dir, BulletData d)
+	public void init(Vector3 position, Config.Direction dir, BulletData d)
 	{
 		tf = transform;
 		_data = d;
@@ -35,18 +35,18 @@ public class Bullet : MonoBehaviour {
 		});
 	}
 
-	public void init(Vector3 position, float gScale, Vector2 velocity, BulletData d)
-	{
-		tf = transform;
-		_data = d;
-		spr = tf.GetComponent<SpriteRenderer>();
-		ColorUtil.toAlpha(spr, 1);
-		tf.position = position;
-
-		Rigidbody2D rb = tf.GetComponent<Rigidbody2D>();
-		rb.gravityScale = gScale;
-		rb.velocity = velocity;
-	}
+//	public void init(Vector3 position, float gScale, Vector2 velocity, BulletData d)
+//	{
+//		tf = transform;
+//		_data = d;
+//		spr = tf.GetComponent<SpriteRenderer>();
+//		ColorUtil.toAlpha(spr, 1);
+//		tf.position = position;
+//
+//		Rigidbody2D rb = tf.GetComponent<Rigidbody2D>();
+//		rb.gravityScale = gScale;
+//		rb.velocity = velocity;
+//	}
 
 	public void OnTriggerEnter2D(Collider2D coll)
 	{
@@ -69,8 +69,4 @@ public class Bullet : MonoBehaviour {
 }
 
 
-public class BulletData
-{
-	public float speed;
-	public int power = 1;
-}
+

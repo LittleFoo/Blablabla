@@ -56,6 +56,7 @@ public class PhysicalPlayerController : FeatureReactionBase, common.ITimerEvent,
 			CharacterAnimation newAni = tf.gameObject.AddComponent<CharacterAnimation>();
 			newAni.copy(ani);
 			ani = newAni;
+			ani.addSprToDic();
 		}
 
 		rb.gravityScale = 0;
@@ -101,8 +102,8 @@ public class PhysicalPlayerController : FeatureReactionBase, common.ITimerEvent,
 	{
 		rb.gravityScale = _gravityScale;
 		common.TimerManager.instance.addEventListeners(this);
-		DistanceTriggerManager.instance.notice(tf.position);
 		cam.setPos(tf);
+		DistanceTriggerManager.instance.notice(tf.position);
 	}
 
 	private Vector3 _lastPostion;
