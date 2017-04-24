@@ -46,7 +46,7 @@ public class MouseMonster : FeatureReactionBase, common.ITimerEvent, IDistanceTr
 	public void trigger()
 	{
 		player = FindObjectOfType<PhysicalPlayerController>();
-		_curRadius = Vector2.Distance(player.tf.position, tf.position);
+		_curRadius =  Vector2.Distance(player.tf.position, tf.position);
 		_radiusDecrease = (_curRadius - _minRadius)/tracingTime;
 		_curAngle = Vector2.Angle(Vector2.zero, tf.position - player.tf.position);
 		_angleDecrease = tracingAngle*3.14f/tracingTime;

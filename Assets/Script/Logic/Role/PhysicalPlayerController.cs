@@ -90,7 +90,6 @@ public class PhysicalPlayerController : FeatureReactionBase, common.ITimerEvent,
 
 		_lastPostion = tf.position;
 
-		;
 
 		bulletData = new BulletData();
 		bulletData.speed = GlobalController.instance.setting.bigUpSpeed;

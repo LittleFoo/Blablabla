@@ -10,7 +10,7 @@ public class Config {
 	public enum ActionTriggerCondition{Awake, OnCollider, TriggerByOthers = 98}
 	public enum TriggerCondition{ OnCollider, OnBottom, OnTop}
 	public enum ReactionType{Null, Normal, Ice, Scroll}
-	public enum TriggerType{Action}
+	public enum TriggerType{Action, None = 99}
 	public const string TAG_PLAYER = "Player";
 	public const string TAG_GROUP = "CharacterGroup";
 	public const string TAG_CHAR = "Character";

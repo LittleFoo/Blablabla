@@ -71,6 +71,11 @@ public class Trigger : MonoBehaviour {
 				CharactersAction action = d.triggerObj.GetComponent<CharactersAction>();
 				action.trigger(Config.ActionTriggerCondition.TriggerByOthers);
 				break;
+
+			case Config.TriggerType.None:
+				TriggerHandler handler = d.triggerObj.GetComponent<TriggerHandler>();
+				handler.Trigger();
+				break;
 		}
 	}
 }
