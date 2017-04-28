@@ -59,11 +59,12 @@ public class CameraScroll : MonoBehaviour {
 		_curTween = tf.DOMove(new Vector3(centerX, centerY, 0), 1.0f).SetEase(Ease.OutQuad);
 	}
 
+	public Vector3 endPos;
 	public void move(Transform player, Vector2 playerLocation, float duration)
 	{
 		if(_curTween != null)
 			_curTween.Kill();
-		Vector3 endPos = new Vector3((0.5f-playerLocation.x)*GlobalController.instance.setting.screenWidth,
+		endPos = new Vector3((0.5f-playerLocation.x)*GlobalController.instance.setting.screenWidth,
 			(0.5f-playerLocation.y)*GlobalController.instance.setting.screenHeight, 0);
 
 		tf.DOMove(endPos + player.position, duration);

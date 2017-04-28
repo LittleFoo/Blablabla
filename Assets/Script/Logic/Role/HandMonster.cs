@@ -2,17 +2,11 @@
 using System.Collections;
 
 public class HandMonster : FeatureReactionBase, common.ITimerEvent {
-	public float timeEachRound = 5;
-	private Vector3 differ = Vector3.zero;
-	private PhysicalPlayerController player;
-	private Vector3 initPos;
-	private float arcSpeed;
-	private float _curArc;
-	private float _arcAddition;
 	private Vector3 center;
-	// Use this for initialization
+	private float _duration;
+	PhysicalPlayerController _player;
 	void Start () {
-			tf = transform;
+		tf = transform;
 		tf.GetComponent<TriggerHandler>().handler += trigger;
 
 	}
@@ -26,34 +20,51 @@ public class HandMonster : FeatureReactionBase, common.ITimerEvent {
 	{
 		CameraScroll cam = Camera.main.GetComponent<CameraScroll>();
 		cam.lockCamera();
-		player = FindObjectOfType<PhysicalPlayerController>();
-		cam.move(player.tf, new Vector2(0.2f, 0.2f), 1.5f);
+		center = cam.endPos;
+		_player = FindObjectOfType<PhysicalPlayerController>();
+		cam.move(_player.tf, new Vector2(0.2f, 0.2f), 1.5f);
 		common.TimerManager.instance.addEventListeners(this);
 
 		closerTrigger();
+
+
+
+
 	}
 
-
+	float basef;
+	float angle;
 	private void closerTrigger()
 	{
-		arcSpeed = 3.14f*2/5;
-		_arcAddition = 0;
+		tf.position = _player.tf.position+ 0.8f*new Vector3(GlobalController.instance.setting.screenWidth, GlobalController.instance.setting.screenHeight, 0);
 
-
-		center.y = player.tf.position.y;
+		center = _player.tf.position;
+		float p = Vector2.Distance(tf.position, center)*0.5f;
 	
-
-		Vector3 centerPos = (tf.position + player.tf.position)*0.5f;
-
-		center.x = tf.position.x +Vector3.Distance(center, tf.position)/(float)System.Math.Cos((Vector3.Angle(Vector3.right, tf.position- player.tf.position )/180.0*3.14));
-		Transform obj = GameObject.Find("Coin").transform;
-		print(Vector3.Angle(Vector3.right, tf.position- player.tf.position  ));
-		obj.position = center;
-
+		_curRate = 7;
+		angle = Vector2.Angle(Vector2.right, tf.position - center)/180*3.14f+3.14f*8;
+		basef = Mathf.Pow(p, 1/angle);
+		common.TimerManager.instance.addEventListeners(this);
 	}
 
+	private float _timePassed;
+	private float _curRate;
+	private float _delta = 1;
 	private void getCloser()
 	{
-		
+		angle -= Time.deltaTime*_delta;
+		float p = Mathf.Pow(basef, angle);
+		tf.position = center + new Vector3((float)System.Math.Cos(angle), (float)System.Math.Sin(angle), 0)*p;
+
+		if(angle <= 3.14*_curRate)
+		{
+			center = _player.tf.position;
+			basef = Mathf.Pow(p, 1/angle);
+			_delta*= 0.5f;
+			tf.position = center + new Vector3((float)System.Math.Cos(angle), (float)System.Math.Sin(angle), 0)*p;
+			common.TimerManager.instance.removeEventListeners(this);
+		}
+
 	}
+
 }
