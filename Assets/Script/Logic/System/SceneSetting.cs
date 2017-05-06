@@ -15,9 +15,7 @@ public class SceneSetting : MonoBehaviour {
 	void Start()
 	{
 		if(isRunAtAwake)
-			AwakeManager.instance.notice();
-//		else
-//			StartCoroutine(notice(2));
+			StartCoroutine(notice(0.1f));
 	}
 
 
