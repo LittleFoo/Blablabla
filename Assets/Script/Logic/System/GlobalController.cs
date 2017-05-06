@@ -43,6 +43,18 @@ public class GlobalController : MonoBehaviour {
 		common.TimerManager.instance.Update();
 	}
 
+	public void pause()
+	{
+		common.TimerManager.instance.paused = true;
+		Time.timeScale = 0;
+	}
+
+	public void resume()
+	{
+		common.TimerManager.instance.paused = false;
+		Time.timeScale = 1;
+	}
+
 	public PathologicalGames.SpawnPool getCurPool()
 	{
 		if(_pool != null)

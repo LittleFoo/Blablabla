@@ -4,7 +4,7 @@ using System.Collections;
 using System.Text;
 using DG.Tweening;
 
-public class InputCorrect : MonoBehaviour {
+public class InputCorrect : MonoBehaviour, IDistanceTrigger, common.ITimerEvent {
 	public CharacterGroup cg;
 	public InputField txt;
 	public float maxWidth;
@@ -12,6 +12,8 @@ public class InputCorrect : MonoBehaviour {
 	public GameObject bg;
 	private string lastContent;
 	private Tween _curTween;
+	private RectTransform txtRect;
+
 	void Start()
 	{
 		FontData d;
@@ -22,13 +24,13 @@ public class InputCorrect : MonoBehaviour {
 
 		shiny.gameObject.SetActive(false);
 		common.EventTriggerListener.Get(txt.gameObject).onDown = onFucos;
-		RectTransform rect = txt.GetComponent<RectTransform>();
+		txtRect= txt.GetComponent<RectTransform>();
 
 		float width = maxWidth/GlobalController.instance.setting.screenWidth*UIModule.width;
 		float height = GlobalController.instance.setting.gridSize/(GlobalController.instance.setting.screenHeight/UIModule.instance.actualHeight);
-		rect.sizeDelta = new Vector2(width, height);
+		txtRect.sizeDelta = new Vector2(width, height);
 		Vector3 vPoint = Camera.main.WorldToViewportPoint(cg.transform.position);
-		rect.anchoredPosition = new Vector2((vPoint.x - 0.5f)*UIModule.instance.actualWidth,(vPoint.y - 0.5f)*UIModule.instance.actualHeight);
+		txtRect.anchoredPosition = new Vector2((vPoint.x - 0.5f)*UIModule.instance.actualWidth,(vPoint.y - 0.5f)*UIModule.instance.actualHeight);
 
 
 		SpriteRenderer spr = bg.GetComponent<SpriteRenderer>();
@@ -40,6 +42,24 @@ public class InputCorrect : MonoBehaviour {
 
 		txt.onValueChanged.AddListener( onValChange);
 		txt.onEndEdit.AddListener(onInputEnd);
+
+		DistanceTriggerManager.instance.addEventListener(this);
+	}
+
+	public void trigger()
+	{
+		common.TimerManager.instance.addEventListeners(this);
+	}
+
+	public Vector3 getPosition()
+	{
+		return transform.position;
+	}
+
+	public void onUpdate()
+	{
+		Vector3 vPoint = Camera.main.WorldToViewportPoint(cg.transform.position);
+		txtRect.anchoredPosition = new Vector2((vPoint.x - 0.5f)*UIModule.instance.actualWidth,(vPoint.y - 0.5f)*UIModule.instance.actualHeight);
 	}
 
 	public void onValChange(string str)
@@ -78,26 +98,25 @@ public class InputCorrect : MonoBehaviour {
 		bg.SetActive(false);
 		onExit();
 		txt.gameObject.SetActive(false);
-		StartCoroutine( trigger());
-	}
-
-	IEnumerator trigger()
-	{
-		yield return new WaitForEndOfFrame();
-		GlobalController.instance.curScene.trigger();
+		txt.GetComponent<Image>().raycastTarget = false;
+		GlobalController.instance.resume();
 
 	}
+
+
 
 	public void onFucos(GameObject obj, UnityEngine.EventSystems.PointerEventData data)
 	{
 		shiny.gameObject.SetActive(true);
 		ColorUtil.toAlpha(shiny, 1);
-		_curTween = ColorUtil.doFade(shiny, 0, 0.5f).SetLoops(int.MaxValue, LoopType.Yoyo);
+		_curTween = ColorUtil.doFade(shiny, 0, 0.5f).SetLoops(int.MaxValue, LoopType.Yoyo).SetUpdate(true);
+		GlobalController.instance.pause();
 	}
 
 	public void onExit()
 	{
 		shiny.gameObject.SetActive(false);
 		_curTween.Kill();
+		common.TimerManager.instance.removeEventListeners(this);
 	}
 }
